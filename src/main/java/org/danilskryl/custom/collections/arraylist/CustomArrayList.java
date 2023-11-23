@@ -43,8 +43,9 @@ public class CustomArrayList<E> implements CustomList<E>, Iterable<E> {
      * @throws IllegalArgumentException if capacity is negative
      */
     public CustomArrayList(int capacity) {
-        if (capacity < 0)
+        if (capacity < 0) {
             throw new IllegalArgumentException("Capacity must be greater than 0");
+        }
 
         data = new Object[capacity];
     }
@@ -56,8 +57,9 @@ public class CustomArrayList<E> implements CustomList<E>, Iterable<E> {
      */
     @Override
     public void add(E e) {
-        if (size == data.length)
+        if (size == data.length) {
             increase();
+        }
 
         data[size] = e;
         incrementSize();
@@ -71,8 +73,9 @@ public class CustomArrayList<E> implements CustomList<E>, Iterable<E> {
      */
     @Override
     public void add(E e, int index) {
-        if (size == data.length)
+        if (size == data.length) {
             increase();
+        }
         checkIndex(index);
 
         for (int i = size - 1; i >= index; i--) {
@@ -110,8 +113,9 @@ public class CustomArrayList<E> implements CustomList<E>, Iterable<E> {
     public void remove(E e) {
         int index = indexOf(e);
 
-        if (index == -1)
+        if (index == -1) {
             throw new NoSuchElementException("Object not found");
+        }
 
         remove(index);
     }
@@ -217,8 +221,9 @@ public class CustomArrayList<E> implements CustomList<E>, Iterable<E> {
      */
     private int indexOf(E e) {
         for (int i = 0; i < size - 1; i++) {
-            if (data[i].equals(e))
+            if (data[i].equals(e)) {
                 return i;
+            }
         }
 
         return -1;
@@ -252,8 +257,9 @@ public class CustomArrayList<E> implements CustomList<E>, Iterable<E> {
      * @throws ArrayIndexOutOfBoundsException if the index is out of bounds
      */
     private void checkIndex(int index) {
-        if (index < 0 || index >= data.length)
+        if (index < 0 || index >= data.length) {
             throw new ArrayIndexOutOfBoundsException("Size of list is " + size + ". Your index is " + index);
+        }
     }
 
     /**
@@ -289,10 +295,14 @@ public class CustomArrayList<E> implements CustomList<E>, Iterable<E> {
          * Returns the next element in the iteration.
          *
          * @return the next element in the iteration
+         * @throws NoSuchElementException if next element doesn't exist
          */
         @Override
         @SuppressWarnings("unchecked")
         public E next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
             return (E) data[currentIndex++];
         }
 
@@ -308,8 +318,9 @@ public class CustomArrayList<E> implements CustomList<E>, Iterable<E> {
             if (currentIndex > 0) {
                 CustomArrayList.this.remove(currentIndex - 1);
                 currentIndex--;
-            } else
+            } else {
                 throw new IllegalStateException();
+            }
         }
     }
 }

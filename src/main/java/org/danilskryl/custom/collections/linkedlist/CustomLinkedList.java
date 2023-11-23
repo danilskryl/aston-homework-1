@@ -4,6 +4,7 @@ import org.danilskryl.custom.collections.CustomList;
 
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * CustomLinkedList is a custom implementation of a linked list that
@@ -15,15 +16,9 @@ import java.util.Iterator;
  * @see CustomList
  */
 public class CustomLinkedList<E> implements CustomList<E>, Iterable<E> {
-    private Element<E> first;
-    private Element<E> last;
+    private Node<E> first;
+    private Node<E> last;
     private int size;
-
-    /**
-     * Constructs an empty linked list.
-     */
-    public CustomLinkedList() {
-    }
 
     /**
      * Returns a string representation of the linked list.
@@ -34,7 +29,7 @@ public class CustomLinkedList<E> implements CustomList<E>, Iterable<E> {
     public String toString() {
         Object[] elements = new Object[size];
         int count = 0;
-        for (Element<E> i = first; i != null; i = i.next) {
+        for (Node<E> i = first; i != null; i = i.next) {
             elements[count] = i;
             count++;
         }
@@ -48,14 +43,15 @@ public class CustomLinkedList<E> implements CustomList<E>, Iterable<E> {
      */
     @Override
     public void add(E e) {
-        Element<E> lastElement = last;
-        Element<E> newElement = new Element<>(e, null, lastElement);
-        last = newElement;
+        Node<E> lastNode = last;
+        Node<E> newNode = new Node<>(e, null, lastNode);
+        last = newNode;
 
-        if (lastElement == null)
-            first = newElement;
-        else
-            lastElement.next = newElement;
+        if (lastNode == null) {
+            first = newNode;
+        } else {
+            lastNode.next = newNode;
+        }
 
         incrementSize();
     }
@@ -70,22 +66,23 @@ public class CustomLinkedList<E> implements CustomList<E>, Iterable<E> {
     @Override
     public void add(E e, int index) {
         checkIndex(index);
-        if (size == 0 && index != 0)
+        if (size == 0 && index != 0) {
             throw new IllegalArgumentException();
+        }
 
-        Element<E> currentElement = first;
+        Node<E> currentNode = first;
 
         for (int i = 1; i < index; i++) {
-            currentElement = currentElement.next;
+            currentNode = currentNode.next;
         }
 
-        Element<E> newElement = new Element<>(e, currentElement.next, currentElement);
-        if (currentElement.next != null) {
-            currentElement.next.previous = newElement;
+        Node<E> newNode = new Node<>(e, currentNode.next, currentNode);
+        if (currentNode.next != null) {
+            currentNode.next.previous = newNode;
         } else {
-            last = newElement;
+            last = newNode;
         }
-        currentElement.next = newElement;
+        currentNode.next = newNode;
 
         incrementSize();
     }
@@ -109,18 +106,18 @@ public class CustomLinkedList<E> implements CustomList<E>, Iterable<E> {
             return;
         }
 
-        Element<E> currentElement = first;
+        Node<E> currentNode = first;
 
         for (int i = 0; i < index; i++) {
-            currentElement = currentElement.next;
+            currentNode = currentNode.next;
         }
 
-        currentElement.previous.next = currentElement.next;
+        currentNode.previous.next = currentNode.next;
 
-        if (currentElement.next != null) {
-            currentElement.next.previous = currentElement.previous;
+        if (currentNode.next != null) {
+            currentNode.next.previous = currentNode.previous;
         } else {
-            last = currentElement.previous;
+            last = currentNode.previous;
         }
 
         decrementSize();
@@ -134,27 +131,27 @@ public class CustomLinkedList<E> implements CustomList<E>, Iterable<E> {
      */
     @Override
     public void remove(E e) {
-        Element<E> currentElement = first;
+        Node<E> currentNode = first;
 
-        while (currentElement != null) {
-            if (currentElement.element.equals(e)) {
-                if (currentElement.previous != null) {
-                    currentElement.previous.next = currentElement.next;
+        while (currentNode != null) {
+            if (currentNode.element.equals(e)) {
+                if (currentNode.previous != null) {
+                    currentNode.previous.next = currentNode.next;
                 } else {
-                    first = currentElement.next;
+                    first = currentNode.next;
                 }
 
-                if (currentElement.next != null) {
-                    currentElement.next.previous = currentElement.previous;
+                if (currentNode.next != null) {
+                    currentNode.next.previous = currentNode.previous;
                 } else {
-                    last = currentElement.previous;
+                    last = currentNode.previous;
                 }
 
                 decrementSize();
                 return;
             }
 
-            currentElement = currentElement.next;
+            currentNode = currentNode.next;
         }
 
         throw new IllegalArgumentException("Element not found: " + e);
@@ -171,11 +168,11 @@ public class CustomLinkedList<E> implements CustomList<E>, Iterable<E> {
     public E get(int index) {
         checkIndex(index);
 
-        Element<E> element = first;
+        Node<E> node = first;
         for (int i = 0; i < index; i++) {
-            element = element.next;
+            node = node.next;
         }
-        return element.element;
+        return node.element;
     }
 
     /**
@@ -183,7 +180,6 @@ public class CustomLinkedList<E> implements CustomList<E>, Iterable<E> {
      */
     @Override
     public void clear() {
-        // Memory leak??
         first = null;
         last = null;
         size = 0;
@@ -219,9 +215,9 @@ public class CustomLinkedList<E> implements CustomList<E>, Iterable<E> {
     @Override
     @SuppressWarnings("unchecked")
     public void sort() {
-        for (Element<E> i = first; i != null; i = i.next) {
-            Element<E> min = i;
-            for (Element<E> j = i.next; j != null; j = j.next) {
+        for (Node<E> i = first; i != null; i = i.next) {
+            Node<E> min = i;
+            for (Node<E> j = i.next; j != null; j = j.next) {
                 if (((Comparable<E>) j.element).compareTo(min.element) < 0) {
                     min = j;
                 }
@@ -236,7 +232,7 @@ public class CustomLinkedList<E> implements CustomList<E>, Iterable<E> {
      * @param a the first element to be swapped
      * @param b the second element to be swapped
      */
-    private void swap(Element<E> a, Element<E> b) {
+    private void swap(Node<E> a, Node<E> b) {
         if (a != b) {
             E temp = a.element;
             a.element = b.element;
@@ -261,8 +257,9 @@ public class CustomLinkedList<E> implements CustomList<E>, Iterable<E> {
      * @throws ArrayIndexOutOfBoundsException if the index is out of bounds
      */
     private void checkIndex(int index) {
-        if (index < 0 || index >= size)
+        if (index < 0 || index >= size) {
             throw new ArrayIndexOutOfBoundsException("Size of list is " + size + ". Your index is " + index);
+        }
     }
 
     /**
@@ -273,7 +270,7 @@ public class CustomLinkedList<E> implements CustomList<E>, Iterable<E> {
     public Object[] toArray() {
         Object[] array = new Object[size];
         int index = 0;
-        for (Element<E> current = first; current != null; current = current.next) {
+        for (Node<E> current = first; current != null; current = current.next) {
             array[index++] = current.element;
         }
         return array;
@@ -284,10 +281,10 @@ public class CustomLinkedList<E> implements CustomList<E>, Iterable<E> {
      *
      * @param <E> the type of the element
      */
-    private static class Element<E> {
+    private static class Node<E> {
         E element;
-        Element<E> next;
-        Element<E> previous;
+        Node<E> next;
+        Node<E> previous;
 
         /**
          * Constructs an Element with the specified element, next, and previous references.
@@ -296,7 +293,7 @@ public class CustomLinkedList<E> implements CustomList<E>, Iterable<E> {
          * @param next     reference to the next element
          * @param previous reference to the previous element
          */
-        public Element(E element, Element<E> next, Element<E> previous) {
+        public Node(E element, Node<E> next, Node<E> previous) {
             this.element = element;
             this.next = next;
             this.previous = previous;
@@ -317,7 +314,7 @@ public class CustomLinkedList<E> implements CustomList<E>, Iterable<E> {
      * CustomLinkedListIterator is an iterator for traversing the linked list.
      */
     private class CustomLinkedListIterator implements Iterator<E> {
-        private Element<E> current = first;
+        private Node<E> current = first;
 
         /**
          * Checks if there are more elements in the iteration.
@@ -333,9 +330,13 @@ public class CustomLinkedList<E> implements CustomList<E>, Iterable<E> {
          * Returns the next element in the iteration.
          *
          * @return the next element
+         * @throws NoSuchElementException - if the element doesn't exist
          */
         @Override
         public E next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
             E value = current.element;
             current = current.next;
             return value;
