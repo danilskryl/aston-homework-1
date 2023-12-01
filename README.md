@@ -129,7 +129,6 @@ DELETE /api/v1/products/{id}
 ```
 
 ### Order
-
 #### Получить все заказы
 
 ```http
