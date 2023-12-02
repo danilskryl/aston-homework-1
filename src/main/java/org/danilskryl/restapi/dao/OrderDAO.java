@@ -1,13 +1,19 @@
 package org.danilskryl.restapi.dao;
 
+import org.danilskryl.restapi.config.ConnectionPool;
 import org.danilskryl.restapi.model.Order;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
 public class OrderDAO {
-    public List<Order> getAllOrders() {
+    public List<Order> getAll() {
         String sql = "SELECT * FROM aston.order_table";
 
         try (Connection connection = ConnectionPool.getConnection();
@@ -30,7 +36,7 @@ public class OrderDAO {
         }
     }
 
-    public Order getOrderById(Long id) {
+    public Order getById(Long id) {
         String sql = "SELECT * FROM aston.order_table WHERE id = ?";
 
         try (Connection connection = ConnectionPool.getConnection();
@@ -51,7 +57,7 @@ public class OrderDAO {
         }
     }
 
-    public Order saveOrder(Order order, List<Long> productsId) {
+    public Order save(Order order, List<Long> productsId) {
         String insertOrderSql = "INSERT INTO aston.order_table (order_date) VALUES (?)";
         String insertOrderProductSql = "INSERT INTO aston.orders_products (order_id, product_id) VALUES (?, ?)";
 
@@ -80,7 +86,7 @@ public class OrderDAO {
         }
     }
 
-    public Order updateOrder(Order order) {
+    public Order update(Order order) {
         String sql = "UPDATE aston.order_table SET aston.order_table.order_date = ? WHERE id = ?";
 
         try (Connection connection = ConnectionPool.getConnection();
@@ -97,7 +103,7 @@ public class OrderDAO {
         }
     }
 
-    public boolean deleteOrder(Long id) {
+    public boolean remove(Long id) {
         String sql = "DELETE FROM aston.order_table WHERE id = ?";
 
         try (Connection connection = ConnectionPool.getConnection();

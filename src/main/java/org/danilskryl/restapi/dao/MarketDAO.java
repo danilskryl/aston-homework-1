@@ -1,13 +1,18 @@
 package org.danilskryl.restapi.dao;
 
+import org.danilskryl.restapi.config.ConnectionPool;
 import org.danilskryl.restapi.model.Market;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MarketDAO {
-    public List<Market> getAllMarkets() {
+    public List<Market> getAll() {
         String sql = "SELECT * FROM aston.market";
 
         try (Connection connection = ConnectionPool.getConnection();
@@ -31,7 +36,7 @@ public class MarketDAO {
         }
     }
 
-    public Market getMarketById(Long id) {
+    public Market getById(Long id) {
         String sql = "SELECT * FROM aston.market WHERE id = ?";
 
         try (Connection connection = ConnectionPool.getConnection();
@@ -52,7 +57,7 @@ public class MarketDAO {
         }
     }
 
-    public Market saveMarket(Market market) {
+    public Market save(Market market) {
         String sql = "INSERT INTO aston.market (name) VALUES (?)";
 
         try (Connection connection = ConnectionPool.getConnection();
@@ -77,7 +82,7 @@ public class MarketDAO {
 
     }
 
-    public Market updateMarket(Market market) {
+    public Market update(Market market) {
         String sql = "UPDATE aston.market SET name = ? WHERE id = ?";
 
         try (Connection connection = ConnectionPool.getConnection();
@@ -95,7 +100,7 @@ public class MarketDAO {
         }
     }
 
-    public boolean removeMarket(Long id) {
+    public boolean remove(Long id) {
         String sql = "DELETE FROM aston.market WHERE id = ?";
 
         try (Connection connection = ConnectionPool.getConnection();

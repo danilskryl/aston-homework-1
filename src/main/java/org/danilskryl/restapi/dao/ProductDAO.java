@@ -1,13 +1,18 @@
 package org.danilskryl.restapi.dao;
 
+import org.danilskryl.restapi.config.ConnectionPool;
 import org.danilskryl.restapi.model.Product;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ProductDAO {
-    public List<Product> getAllProducts() {
+    public List<Product> getAll() {
         String sql = "SELECT * FROM aston.product";
 
         try (Connection connection = ConnectionPool.getConnection();
@@ -32,7 +37,7 @@ public class ProductDAO {
         }
     }
 
-    public Product getProductById(Long id) {
+    public Product getById(Long id) {
         String sql = "SELECT * FROM aston.product WHERE id = ?";
 
         try (Connection connection = ConnectionPool.getConnection();
@@ -56,7 +61,7 @@ public class ProductDAO {
         }
     }
 
-    public Product saveProduct(Product product) {
+    public Product save(Product product) {
         String sql = "INSERT INTO aston.product(name, description, market_id) VALUES (?, ?, ?)";
 
         try (Connection connection = ConnectionPool.getConnection();
@@ -82,7 +87,7 @@ public class ProductDAO {
         }
     }
 
-    public Product updateProduct(Product product) {
+    public Product update(Product product) {
         String sql = "UPDATE aston.product SET name = ?, description = ?, market_id = ? WHERE id = ?";
 
         try (Connection connection = ConnectionPool.getConnection();
@@ -102,7 +107,7 @@ public class ProductDAO {
         }
     }
 
-    public boolean removeProduct(Long id) {
+    public boolean remove(Long id) {
         String sql = "DELETE FROM aston.product WHERE id = ?";
 
         try (Connection connection = ConnectionPool.getConnection();

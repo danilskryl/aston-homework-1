@@ -19,28 +19,28 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public List<OrderTo> getAllOrders() {
-        return orderDAO.getAllOrders().stream().map(mapper::toDto).toList();
+        return orderDAO.getAll().stream().map(mapper::toDto).toList();
     }
 
     @Override
     public OrderTo getOrderById(Long id) {
-        return mapper.toDto(orderDAO.getOrderById(id));
+        return mapper.toDto(orderDAO.getById(id));
     }
 
     @Override
     public OrderTo saveOrder(OrderTo orderTo, List<Long> productsId) {
         Order order = mapper.toEntity(orderTo);
-        return mapper.toDto(orderDAO.saveOrder(order, productsId));
+        return mapper.toDto(orderDAO.save(order, productsId));
     }
 
     @Override
     public OrderTo updateOrder(OrderTo orderTo) {
         Order order = mapper.toEntity(orderTo);
-        return mapper.toDto(orderDAO.updateOrder(order));
+        return mapper.toDto(orderDAO.update(order));
     }
 
     @Override
     public boolean removeOrder(Long id) {
-        return orderDAO.deleteOrder(id);
+        return orderDAO.remove(id);
     }
 }

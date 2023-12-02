@@ -19,28 +19,28 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<ProductTo> getAllProducts() {
-        return productDAO.getAllProducts().stream().map(mapper::toDto).toList();
+        return productDAO.getAll().stream().map(mapper::toDto).toList();
     }
 
     @Override
     public ProductTo getProductById(Long id) {
-        return mapper.toDto(productDAO.getProductById(id));
+        return mapper.toDto(productDAO.getById(id));
     }
 
     @Override
     public ProductTo saveProduct(ProductTo productTo) {
         Product product = mapper.toEntity(productTo);
-        return mapper.toDto(productDAO.saveProduct(product));
+        return mapper.toDto(productDAO.save(product));
     }
 
     @Override
     public ProductTo updateProduct(ProductTo productTo) {
         Product product = mapper.toEntity(productTo);
-        return mapper.toDto(productDAO.updateProduct(product));
+        return mapper.toDto(productDAO.update(product));
     }
 
     @Override
     public boolean removeProduct(Long id) {
-        return productDAO.removeProduct(id);
+        return productDAO.remove(id);
     }
 }

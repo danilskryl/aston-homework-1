@@ -1,4 +1,4 @@
-package org.danilskryl.restapi.dao;
+package org.danilskryl.restapi.config;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;

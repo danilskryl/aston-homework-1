@@ -15,7 +15,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.List;
 
-import static jakarta.servlet.http.HttpServletResponse.*;
+import static jakarta.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
+import static jakarta.servlet.http.HttpServletResponse.SC_CREATED;
+import static jakarta.servlet.http.HttpServletResponse.SC_NOT_FOUND;
+import static jakarta.servlet.http.HttpServletResponse.SC_OK;
 
 @WebServlet(name = "MarketServlet", value = "/api/v1/markets/*")
 public class MarketServlet extends HttpServlet {
@@ -84,8 +87,9 @@ public class MarketServlet extends HttpServlet {
 
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        String pathInfo = req.getPathInfo();
+        resp.setContentType("application/json");
 
+        String pathInfo = req.getPathInfo();
         if (pathInfo != null && !pathInfo.equals("/")) {
             String idString = pathInfo.substring(1);
 
@@ -93,7 +97,6 @@ public class MarketServlet extends HttpServlet {
                 long marketId = Long.parseLong(idString);
                 boolean b = service.removeMarket(marketId);
 
-                resp.setContentType("application/json");
                 resp.setStatus(SC_OK);
                 resp.getWriter().write(mapper.writeValueAsString(
                         ResponseData.constructResponseData(SC_OK, "Successfully removed=" + b))

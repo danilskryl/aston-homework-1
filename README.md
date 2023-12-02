@@ -4,9 +4,9 @@
 
 ## Технологии
 
-- Java 11+
+- Java 17
 - [Jakarta Servlet API](https://eclipse-ee4j.github.io/servlet/) (6.0.0)
-- MySQL или PostgreSQL
+- MySQL
 - [Lombok](https://projectlombok.org/) (1.18.30)
 - [JUnit Jupiter](https://junit.org/junit5/docs/current/user-guide/) (5.10.0)
 - [Jackson Databind](https://github.com/FasterXML/jackson) (2.16.0)
@@ -30,7 +30,7 @@
 
 ## Зависимости
 
-- Java 11+
+- Java 17
 - MySQL
 - Lombok
 - [JUnit Jupiter](https://junit.org/junit5/docs/current/user-guide/) (5.10.0)

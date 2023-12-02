@@ -20,28 +20,28 @@ public class MarketServiceImpl implements MarketService {
 
     @Override
     public List<MarketTo> getAllMarkets() {
-        return marketDAO.getAllMarkets().stream().map(mapper::toDto).toList();
+        return marketDAO.getAll().stream().map(mapper::toDto).toList();
     }
 
     @Override
     public MarketTo getMarketById(Long id) {
-        return mapper.toDto(marketDAO.getMarketById(id));
+        return mapper.toDto(marketDAO.getById(id));
     }
 
     @Override
     public MarketTo saveMarket(MarketTo marketTo) {
-        Market market = marketDAO.saveMarket(mapper.toEntity(marketTo));
+        Market market = marketDAO.save(mapper.toEntity(marketTo));
         return mapper.toDto(market);
     }
 
     @Override
     public MarketTo updateMarket(MarketTo marketTo) {
-        Market market = marketDAO.updateMarket(mapper.toEntity(marketTo));
+        Market market = marketDAO.update(mapper.toEntity(marketTo));
         return mapper.toDto(market);
     }
 
     @Override
     public boolean removeMarket(Long id) {
-        return marketDAO.removeMarket(id);
+        return marketDAO.remove(id);
     }
 }

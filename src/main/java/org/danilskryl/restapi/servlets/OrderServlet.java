@@ -121,10 +121,10 @@ public class OrderServlet extends HttpServlet {
                         ResponseData.constructResponseData(SC_OK, "Successfully removed=" + b))
                 );
             } catch (NumberFormatException e) {
+                resp.setStatus(SC_BAD_REQUEST);
                 resp.getWriter().write(mapper.writeValueAsString(
                         ResponseData.constructResponseData(SC_BAD_REQUEST, "Path must be contains only numbers")
                 ));
-                resp.setStatus(SC_BAD_REQUEST);
             }
         }
     }
