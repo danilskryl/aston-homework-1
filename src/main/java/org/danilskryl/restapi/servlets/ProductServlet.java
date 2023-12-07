@@ -6,29 +6,43 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.danilskryl.restapi.dto.ProductTo;
+import org.danilskryl.restapi.dto.ProductDto;
+import org.danilskryl.restapi.exception.ResponseData;
 import org.danilskryl.restapi.service.ProductService;
 import org.danilskryl.restapi.service.impl.ProductServiceImpl;
-import org.danilskryl.restapi.exception.ResponseData;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.List;
 
-import static jakarta.servlet.http.HttpServletResponse.*;
+import static jakarta.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
+import static jakarta.servlet.http.HttpServletResponse.SC_CREATED;
+import static jakarta.servlet.http.HttpServletResponse.SC_NOT_FOUND;
+import static jakarta.servlet.http.HttpServletResponse.SC_OK;
 
 @WebServlet(name = "ProductServlet", value = "/api/v1/products/*")
 public class ProductServlet extends HttpServlet {
-    private final ProductService service = new ProductServiceImpl();
-    private final ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
+    private final ProductService service;
+    private final ObjectMapper mapper;
+    private static final String CONTENT_TYPE = "application/json";
+
+    public ProductServlet() {
+        service = new ProductServiceImpl();
+        mapper = new ObjectMapper().registerModule(new JavaTimeModule());
+    }
+
+    public ProductServlet(ProductService service, ObjectMapper mapper) {
+        this.service = service;
+        this.mapper = mapper;
+    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String pathInfo = req.getPathInfo();
-        resp.setContentType("application/json");
+        resp.setContentType(CONTENT_TYPE);
 
         if (pathInfo == null || pathInfo.equals("/")) {
-            List<ProductTo> allProducts = service.getAllProducts();
+            List<ProductDto> allProducts = service.getAll();
             String json = mapper.writeValueAsString(allProducts);
 
             resp.setStatus(HttpServletResponse.SC_OK);
@@ -38,7 +52,7 @@ public class ProductServlet extends HttpServlet {
 
             try {
                 long productId = Long.parseLong(idString);
-                ProductTo product = service.getProductById(productId);
+                ProductDto product = service.getById(productId);
 
                 if (product == null) {
                     resp.setStatus(SC_NOT_FOUND);
@@ -63,7 +77,7 @@ public class ProductServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        resp.setContentType("application/json");
+        resp.setContentType(CONTENT_TYPE);
 
         if (isPathNotNull(req.getPathInfo())) {
             resp.getWriter().write(mapper.writeValueAsString(
@@ -74,11 +88,11 @@ public class ProductServlet extends HttpServlet {
             resp.setStatus(SC_BAD_REQUEST);
             return;
         }
-        ProductTo convertedProduct = mapper.readValue(readJson(req.getReader()), ProductTo.class);
+        ProductDto convertedProduct = mapper.readValue(readJson(req.getReader()), ProductDto.class);
 
-        ProductTo productTo = service.saveProduct(convertedProduct);
+        ProductDto productDto = service.save(convertedProduct);
 
-        String json = mapper.writeValueAsString(productTo);
+        String json = mapper.writeValueAsString(productDto);
         resp.setStatus(SC_CREATED);
         resp.getWriter().write(json);
     }
@@ -93,19 +107,19 @@ public class ProductServlet extends HttpServlet {
             return;
         }
 
-        ProductTo convertedProduct = mapper.readValue(readJson(req.getReader()), ProductTo.class);
+        ProductDto convertedProduct = mapper.readValue(readJson(req.getReader()), ProductDto.class);
 
-        ProductTo productTo = service.updateProduct(convertedProduct);
+        ProductDto productDto = service.update(convertedProduct);
 
-        String json = mapper.writeValueAsString(productTo);
-        resp.setContentType("application/json");
+        String json = mapper.writeValueAsString(productDto);
+        resp.setContentType(CONTENT_TYPE);
         resp.setStatus(HttpServletResponse.SC_OK);
         resp.getWriter().write(json);
     }
 
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        resp.setContentType("application/json");
+        resp.setContentType(CONTENT_TYPE);
 
         String pathInfo = req.getPathInfo();
         if (isPathNotNull(pathInfo) && !pathInfo.equals("/")) {
@@ -114,7 +128,7 @@ public class ProductServlet extends HttpServlet {
             try {
                 long productId = Long.parseLong(idString);
 
-                boolean b = service.removeProduct(productId);
+                boolean b = service.remove(productId);
 
                 resp.setStatus(SC_OK);
                 resp.getWriter().write(mapper.writeValueAsString(

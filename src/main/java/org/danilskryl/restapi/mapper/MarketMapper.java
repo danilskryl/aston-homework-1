@@ -1,12 +1,12 @@
 package org.danilskryl.restapi.mapper;
 
-import org.danilskryl.restapi.dto.MarketTo;
+import org.danilskryl.restapi.dto.MarketDto;
 import org.danilskryl.restapi.model.Market;
 
-public class MarketMapper implements Mapper<Market, MarketTo> {
+public class MarketMapper implements Mapper<Market, MarketDto> {
 
     @Override
-    public Market toEntity(MarketTo dto) {
+    public Market fromDto(MarketDto dto) {
         Market market = new Market();
         market.setId(dto.getId());
         market.setName(dto.getName());
@@ -15,8 +15,8 @@ public class MarketMapper implements Mapper<Market, MarketTo> {
     }
 
     @Override
-    public MarketTo toDto(Market market) {
-        return MarketTo.builder()
+    public MarketDto toDto(Market market) {
+        return MarketDto.builder()
                 .id(market.getId())
                 .name(market.getName())
                 .build();

@@ -6,7 +6,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.danilskryl.restapi.dto.MarketTo;
+import org.danilskryl.restapi.dto.MarketDto;
 import org.danilskryl.restapi.exception.ResponseData;
 import org.danilskryl.restapi.service.MarketService;
 import org.danilskryl.restapi.service.impl.MarketServiceImpl;
@@ -22,16 +22,25 @@ import static jakarta.servlet.http.HttpServletResponse.SC_OK;
 
 @WebServlet(name = "MarketServlet", value = "/api/v1/markets/*")
 public class MarketServlet extends HttpServlet {
-    private final MarketService service = new MarketServiceImpl();
+    private final MarketService service;
     private final ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
+    private static final String CONTENT_TYPE = "application/json";
+
+    public MarketServlet() {
+        service = new MarketServiceImpl();
+    }
+
+    public MarketServlet(MarketService service) {
+        this.service = service;
+    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String pathInfo = req.getPathInfo();
-        resp.setContentType("application/json");
+        resp.setContentType(CONTENT_TYPE);
 
         if (!isPathNotNull(req.getPathInfo())) {
-            List<MarketTo> allMarkets = service.getAllMarkets();
+            List<MarketDto> allMarkets = service.getAll();
             String json = mapper.writeValueAsString(allMarkets);
 
             resp.setStatus(HttpServletResponse.SC_OK);
@@ -41,7 +50,7 @@ public class MarketServlet extends HttpServlet {
 
             try {
                 long marketId = Long.parseLong(idString);
-                MarketTo market = service.getMarketById(marketId);
+                MarketDto market = service.getById(marketId);
 
                 if (market == null) {
                     resp.setStatus(SC_NOT_FOUND);
@@ -75,19 +84,19 @@ public class MarketServlet extends HttpServlet {
             resp.setStatus(SC_BAD_REQUEST);
             return;
         }
-        MarketTo convertedMarket = mapper.readValue(readJson(req.getReader()), MarketTo.class);
+        MarketDto convertedMarket = mapper.readValue(readJson(req.getReader()), MarketDto.class);
 
-        MarketTo marketTo = service.saveMarket(convertedMarket);
+        MarketDto marketDto = service.save(convertedMarket);
 
-        String json = mapper.writeValueAsString(marketTo);
-        resp.setContentType("application/json");
+        String json = mapper.writeValueAsString(marketDto);
+        resp.setContentType(CONTENT_TYPE);
         resp.setStatus(SC_CREATED);
         resp.getWriter().write(json);
     }
 
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        resp.setContentType("application/json");
+        resp.setContentType(CONTENT_TYPE);
 
         String pathInfo = req.getPathInfo();
         if (pathInfo != null && !pathInfo.equals("/")) {
@@ -95,7 +104,7 @@ public class MarketServlet extends HttpServlet {
 
             try {
                 long marketId = Long.parseLong(idString);
-                boolean b = service.removeMarket(marketId);
+                boolean b = service.remove(marketId);
 
                 resp.setStatus(SC_OK);
                 resp.getWriter().write(mapper.writeValueAsString(
@@ -119,12 +128,12 @@ public class MarketServlet extends HttpServlet {
             resp.setStatus(SC_BAD_REQUEST);
             return;
         }
-        MarketTo convertedMarket = mapper.readValue(readJson(req.getReader()), MarketTo.class);
+        MarketDto convertedMarket = mapper.readValue(readJson(req.getReader()), MarketDto.class);
 
-        MarketTo marketTo = service.updateMarket(convertedMarket);
+        MarketDto marketDto = service.update(convertedMarket);
 
-        String json = mapper.writeValueAsString(marketTo);
-        resp.setContentType("application/json");
+        String json = mapper.writeValueAsString(marketDto);
+        resp.setContentType(CONTENT_TYPE);
         resp.setStatus(HttpServletResponse.SC_OK);
         resp.getWriter().write(json);
     }

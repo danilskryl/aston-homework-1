@@ -23,26 +23,10 @@
 
 - **Servlets**: Обрабатывает HTTP запросы и возвращает DTO.
 - **Service**: Содержит бизнес-логику, взаимодействует с репозиторием и маппером.
-- **DAO**: Отвечает за взаимодействие с базой данных через JDBC.
+- **Repository**: Отвечает за взаимодействие с базой данных через JDBC.
 - **Mapper**: Преобразует Entity в DTO и наоборот.
 - **DTO**: Объекты передачи данных для взаимодействия с клиентом.
-- **Entity**: Сущности, представляющие объекты в базе данных.
-
-## Зависимости
-
-- Java 17
-- MySQL
-- Lombok
-- [JUnit Jupiter](https://junit.org/junit5/docs/current/user-guide/) (5.10.0)
-- [Jakarta Servlet API](https://eclipse-ee4j.github.io/servlet/) (6.0.0)
-- [MySQL Connector/J](https://dev.mysql.com/downloads/connector/j/) (8.0.33)
-- [Jackson Databind](https://github.com/FasterXML/jackson) (2.16.0)
-- [Jackson Datatype JSR310](https://github.com/FasterXML/jackson-modules-java8) (2.16.0)
-- [HikariCP](https://github.com/brettwooldridge/HikariCP) (5.1.0)
-- [Mockito](https://site.mockito.org/) (5.3.1)
-- [JUnit Jupiter Params](https://junit.org/junit5/docs/current/user-guide/#writing-tests-parameterized-tests) (5.9.3)
-- [Mockito JUnit Jupiter](https://site.mockito.org/) (5.3.1)
-- [Typesafe Config](https://github.com/lightbend/config) (1.4.3)
+- **Model**: Сущности, представляющие объекты в базе данных.
 
 ## Запуск проекта
 

@@ -1,17 +1,19 @@
 package org.danilskryl.restapi.service;
 
-import org.danilskryl.restapi.dto.OrderTo;
+import org.danilskryl.restapi.dto.OrderDto;
 
 import java.util.List;
 
-public interface OrderService {
-    List<OrderTo> getAllOrders();
+public interface OrderService extends BaseService<OrderDto> {
+    List<OrderDto> getAll();
 
-    OrderTo getOrderById(Long id);
+    OrderDto getById(Long id);
 
-    OrderTo saveOrder(OrderTo orderTo, List<Long> productsId);
+    OrderDto save(OrderDto orderDto);
 
-    OrderTo updateOrder(OrderTo orderTo);
+    OrderDto save(OrderDto orderDto, List<Long> productsId);
 
-    boolean removeOrder(Long id);
+    OrderDto update(OrderDto orderDto);
+
+    boolean remove(Long id);
 }

@@ -1,17 +1,17 @@
 package org.danilskryl.restapi.service;
 
-import org.danilskryl.restapi.dto.ProductTo;
+import org.danilskryl.restapi.dto.ProductDto;
 
 import java.util.List;
 
-public interface ProductService {
-    List<ProductTo> getAllProducts();
+public interface ProductService extends BaseService<ProductDto> {
+    List<ProductDto> getAll();
 
-    ProductTo getProductById(Long id);
+    ProductDto getById(Long id);
 
-    ProductTo saveProduct(ProductTo productTo);
+    ProductDto save(ProductDto productDto);
 
-    ProductTo updateProduct(ProductTo productTo);
+    ProductDto update(ProductDto productDto);
 
-    boolean removeProduct(Long id);
+    boolean remove(Long id);
 }

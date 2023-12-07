@@ -1,17 +1,17 @@
 package org.danilskryl.restapi.service;
 
-import org.danilskryl.restapi.dto.MarketTo;
+import org.danilskryl.restapi.dto.MarketDto;
 
 import java.util.List;
 
-public interface MarketService {
-    List<MarketTo> getAllMarkets();
+public interface MarketService extends BaseService<MarketDto> {
+    List<MarketDto> getAll();
 
-    MarketTo getMarketById(Long id);
+    MarketDto getById(Long id);
 
-    MarketTo saveMarket(MarketTo market);
+    MarketDto save(MarketDto market);
 
-    MarketTo updateMarket(MarketTo marketTo);
+    MarketDto update(MarketDto marketDto);
 
-    boolean removeMarket(Long id);
+    boolean remove(Long id);
 }

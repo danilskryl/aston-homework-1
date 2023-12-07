@@ -6,8 +6,8 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.danilskryl.restapi.dto.OrderProductTo;
-import org.danilskryl.restapi.dto.OrderTo;
+import org.danilskryl.restapi.dto.OrderDto;
+import org.danilskryl.restapi.dto.OrderProductDto;
 import org.danilskryl.restapi.exception.ResponseData;
 import org.danilskryl.restapi.service.OrderService;
 import org.danilskryl.restapi.service.impl.OrderServiceImpl;
@@ -16,20 +16,34 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.List;
 
-import static jakarta.servlet.http.HttpServletResponse.*;
+import static jakarta.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
+import static jakarta.servlet.http.HttpServletResponse.SC_CREATED;
+import static jakarta.servlet.http.HttpServletResponse.SC_NOT_FOUND;
+import static jakarta.servlet.http.HttpServletResponse.SC_OK;
 
 @WebServlet(name = "OrderServlet", value = "/api/v1/orders/*")
 public class OrderServlet extends HttpServlet {
-    private final OrderService service = new OrderServiceImpl();
-    private final ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
+    private final OrderService service;
+    private final ObjectMapper mapper;
+    private static final String CONTENT_TYPE = "application/json";
+
+    public OrderServlet() {
+        service = new OrderServiceImpl();
+        mapper = new ObjectMapper().registerModule(new JavaTimeModule());
+    }
+
+    public OrderServlet(OrderService service, ObjectMapper mapper) {
+        this.service = service;
+        this.mapper = mapper;
+    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String pathInfo = req.getPathInfo();
-        resp.setContentType("application/json");
+        resp.setContentType(CONTENT_TYPE);
 
         if (pathInfo == null || pathInfo.equals("/")) {
-            List<OrderTo> allOrders = service.getAllOrders();
+            List<OrderDto> allOrders = service.getAll();
             String json = mapper.writeValueAsString(allOrders);
 
             resp.setStatus(HttpServletResponse.SC_OK);
@@ -39,9 +53,9 @@ public class OrderServlet extends HttpServlet {
 
             try {
                 long orderId = Long.parseLong(idString);
-                OrderTo orderTo = service.getOrderById(orderId);
+                OrderDto orderDto = service.getById(orderId);
 
-                if (orderTo == null) {
+                if (orderDto == null) {
                     resp.setStatus(SC_NOT_FOUND);
                     resp.getWriter().write(mapper.writeValueAsString(
                             ResponseData.constructResponseData(SC_NOT_FOUND, "Order not found with ID " + orderId)
@@ -49,7 +63,7 @@ public class OrderServlet extends HttpServlet {
                     return;
                 }
 
-                String json = mapper.writeValueAsString(orderTo);
+                String json = mapper.writeValueAsString(orderDto);
                 resp.setStatus(HttpServletResponse.SC_OK);
                 resp.getWriter().write(json);
             } catch (NumberFormatException e) {
@@ -64,7 +78,7 @@ public class OrderServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        resp.setContentType("application/json");
+        resp.setContentType(CONTENT_TYPE);
 
         if (isPathNotNull(req.getPathInfo())) {
             resp.getWriter().write(mapper.writeValueAsString(
@@ -75,11 +89,11 @@ public class OrderServlet extends HttpServlet {
             resp.setStatus(SC_BAD_REQUEST);
             return;
         }
-        OrderProductTo orderProductTo = mapper.readValue(readJson(req.getReader()), OrderProductTo.class);
+        OrderProductDto orderProductDto = mapper.readValue(readJson(req.getReader()), OrderProductDto.class);
 
-        OrderTo orderTo = service.saveOrder(orderProductTo.getOrderTo(), orderProductTo.getProductsId());
+        OrderDto orderDto = service.save(orderProductDto.getOrderDto(), orderProductDto.getProductsId());
 
-        String json = mapper.writeValueAsString(orderTo);
+        String json = mapper.writeValueAsString(orderDto);
         resp.setStatus(SC_CREATED);
         resp.getWriter().write(json);
     }
@@ -93,19 +107,19 @@ public class OrderServlet extends HttpServlet {
             resp.setStatus(SC_BAD_REQUEST);
             return;
         }
-        OrderTo convertedOrder = mapper.readValue(readJson(req.getReader()), OrderTo.class);
+        OrderDto convertedOrder = mapper.readValue(readJson(req.getReader()), OrderDto.class);
 
-        OrderTo orderTo = service.updateOrder(convertedOrder);
+        OrderDto orderDto = service.update(convertedOrder);
 
-        String json = mapper.writeValueAsString(orderTo);
-        resp.setContentType("application/json");
+        String json = mapper.writeValueAsString(orderDto);
+        resp.setContentType(CONTENT_TYPE);
         resp.setStatus(HttpServletResponse.SC_OK);
         resp.getWriter().write(json);
     }
 
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        resp.setContentType("application/json");
+        resp.setContentType(CONTENT_TYPE);
 
         String pathInfo = req.getPathInfo();
         if (isPathNotNull(pathInfo) && !pathInfo.equals("/")) {
@@ -114,7 +128,7 @@ public class OrderServlet extends HttpServlet {
             try {
                 long orderId = Long.parseLong(idString);
 
-                boolean b = service.removeOrder(orderId);
+                boolean b = service.remove(orderId);
 
                 resp.setStatus(SC_OK);
                 resp.getWriter().write(mapper.writeValueAsString(

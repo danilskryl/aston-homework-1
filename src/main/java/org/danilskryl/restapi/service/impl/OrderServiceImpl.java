@@ -1,46 +1,65 @@
 package org.danilskryl.restapi.service.impl;
 
-import org.danilskryl.restapi.dao.OrderDAO;
-import org.danilskryl.restapi.dto.OrderTo;
+import org.danilskryl.restapi.dto.OrderDto;
 import org.danilskryl.restapi.mapper.Mapper;
 import org.danilskryl.restapi.mapper.OrderMapper;
 import org.danilskryl.restapi.model.Order;
+import org.danilskryl.restapi.repository.OrderRepository;
+import org.danilskryl.restapi.repository.impl.OrderRepositoryImpl;
 import org.danilskryl.restapi.service.OrderService;
 
 import java.util.List;
 
 public class OrderServiceImpl implements OrderService {
-    private final OrderDAO orderDAO;
-    private final Mapper<Order, OrderTo> mapper = new OrderMapper();
+    private final OrderRepository orderRepository;
+    private final Mapper<Order, OrderDto> mapper;
 
     public OrderServiceImpl() {
-        orderDAO = new OrderDAO();
+        orderRepository = new OrderRepositoryImpl();
+        mapper = new OrderMapper();
+    }
+
+    public OrderServiceImpl(OrderRepository orderRepository, Mapper<Order, OrderDto> mapper) {
+        this.orderRepository = orderRepository;
+        this.mapper = mapper;
     }
 
     @Override
-    public List<OrderTo> getAllOrders() {
-        return orderDAO.getAll().stream().map(mapper::toDto).toList();
+    public List<OrderDto> getAll() {
+        List<Order> orderList = orderRepository.getAll();
+        return orderList.stream()
+                .map(mapper::toDto)
+                .toList();
     }
 
     @Override
-    public OrderTo getOrderById(Long id) {
-        return mapper.toDto(orderDAO.getById(id));
+    public OrderDto getById(Long id) {
+        return mapper.toDto(orderRepository.getById(id));
     }
 
     @Override
-    public OrderTo saveOrder(OrderTo orderTo, List<Long> productsId) {
-        Order order = mapper.toEntity(orderTo);
-        return mapper.toDto(orderDAO.save(order, productsId));
+    public OrderDto save(OrderDto orderDto) {
+        Order order = mapper.fromDto(orderDto);
+        Order savedOrder = orderRepository.save(order);
+        return mapper.toDto(savedOrder);
     }
 
     @Override
-    public OrderTo updateOrder(OrderTo orderTo) {
-        Order order = mapper.toEntity(orderTo);
-        return mapper.toDto(orderDAO.update(order));
+    public OrderDto save(OrderDto orderDto, List<Long> productsId) {
+        Order order = mapper.fromDto(orderDto);
+        Order savedOrder = orderRepository.save(order, productsId);
+        return mapper.toDto(savedOrder);
     }
 
     @Override
-    public boolean removeOrder(Long id) {
-        return orderDAO.remove(id);
+    public OrderDto update(OrderDto orderDto) {
+        Order order = mapper.fromDto(orderDto);
+        Order updatedOrder = orderRepository.update(order);
+        return mapper.toDto(updatedOrder);
+    }
+
+    @Override
+    public boolean remove(Long id) {
+        return orderRepository.remove(id);
     }
 }

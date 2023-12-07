@@ -1,4 +1,4 @@
-package org.danilskryl.restapi.servlets.data.util;
+package org.danilskryl.restapi.servlets.util;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

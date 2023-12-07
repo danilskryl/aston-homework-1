@@ -3,12 +3,14 @@ package org.danilskryl.custom.collections.linkedlist;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class CustomLinkedListTest {
     private CustomLinkedList<Integer> listIntegers;
     private CustomLinkedList<String> listStrings;
     private CustomLinkedList<Double> listDoubles;
+
     @BeforeEach
     void setUp() {
         listIntegers = new CustomLinkedList<>();

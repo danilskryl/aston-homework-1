@@ -1,12 +1,12 @@
 package org.danilskryl.restapi.mapper;
 
-import org.danilskryl.restapi.dto.ProductTo;
+import org.danilskryl.restapi.dto.ProductDto;
 import org.danilskryl.restapi.model.Product;
 
-public class ProductMapper implements Mapper<Product, ProductTo> {
+public class ProductMapper implements Mapper<Product, ProductDto> {
 
     @Override
-    public Product toEntity(ProductTo dto) {
+    public Product fromDto(ProductDto dto) {
         Product product = new Product();
         product.setId(dto.getId());
         product.setName(dto.getName());
@@ -17,8 +17,8 @@ public class ProductMapper implements Mapper<Product, ProductTo> {
     }
 
     @Override
-    public ProductTo toDto(Product market) {
-        return ProductTo.builder()
+    public ProductDto toDto(Product market) {
+        return ProductDto.builder()
                 .id(market.getId())
                 .name(market.getName())
                 .description(market.getDescription())

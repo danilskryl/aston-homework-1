@@ -1,19 +1,20 @@
 package org.danilskryl.restapi.servlets;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.danilskryl.restapi.dto.ProductTo;
-import org.danilskryl.restapi.servlets.data.product.ProductDataTest;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
+import org.danilskryl.restapi.dto.ProductDto;
+import org.danilskryl.restapi.exception.ResponseData;
+import org.danilskryl.restapi.service.ProductService;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.BufferedReader;
@@ -21,126 +22,137 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.util.List;
 
 import static jakarta.servlet.http.HttpServletResponse.SC_CREATED;
 import static jakarta.servlet.http.HttpServletResponse.SC_OK;
-import static org.danilskryl.restapi.servlets.data.util.DatabaseScriptRunner.executeScript;
-import static org.danilskryl.restapi.servlets.data.util.TestUtil.removeFieldFromJson;
+import static org.danilskryl.restapi.servlets.util.TestUtil.removeFieldFromJson;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.mock;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class ProductServletTest {
     @InjectMocks
     ProductServlet productServlet;
-    ObjectMapper mapper = new ObjectMapper();
-    HttpServletRequest request = mock(HttpServletRequest.class);
-    HttpServletResponse response = mock(HttpServletResponse.class);
+    @Mock
+    ProductService productService;
+    @Spy
+    ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
+    @Mock
+    HttpServletRequest request;
+    @Mock
+    HttpServletResponse response;
     StringWriter stringWriter = new StringWriter();
-
-    @BeforeAll
-    static void runSqlScripts() {
-        executeScript("src/main/resources/ddl.sql");
-        executeScript("src/main/resources/dml.sql");
-    }
+    List<ProductDto> expectedProductDtoList = List.of(
+            new ProductDto(23L, "Test23", "Test description 23", 23L),
+            new ProductDto(113L, "Test113", "Test description22222", 11L),
+            new ProductDto(18841L, "18841Test", "Test description", 100L)
+    );
 
     @ParameterizedTest
-    @ValueSource(longs = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10})
-    @Order(1)
+    @ValueSource(longs = {1, 2, 3, 4, 5, 6, 7, 8})
     void testDoGetProductWithValidId(Long id) throws Exception {
+        ProductDto expectedProductDto = new ProductDto(id, "Test market", "Test description", 23L);
+
         when(request.getPathInfo()).thenReturn("/" + id);
         when(response.getWriter()).thenReturn(new PrintWriter(stringWriter));
+        when(productService.getById(id)).thenReturn(expectedProductDto);
 
         productServlet.doGet(request, response);
-
-        verify(response, times(1)).setStatus(SC_OK);
-        verify(response, times(1)).setContentType("application/json");
 
         String actualJson = stringWriter.toString();
-
-        assertEquals(ProductDataTest.ARRAY_PRODUCT_JSON[Math.toIntExact(id - 1)], actualJson);
-    }
-
-    @Test
-    @Order(2)
-    void testDoGetAllProducts() throws IOException {
-        when(response.getWriter()).thenReturn(new PrintWriter(stringWriter));
-
-        productServlet.doGet(request, response);
+        ProductDto actualProductDto = mapper.readValue(actualJson, ProductDto.class);
 
         verify(response, times(1)).setStatus(SC_OK);
         verify(response, times(1)).setContentType("application/json");
-
-        String actualJson = stringWriter.toString().trim();
-
-        assertEquals(ProductDataTest.ALL_PRODUCTS_JSON, actualJson);
+        verify(productService, times(1)).getById(id);
+        assertEquals(id, expectedProductDto.getId());
+        assertEquals(expectedProductDto, actualProductDto);
     }
 
     @Test
-    @Order(3)
-    void testDoPostValidProduct() throws IOException {
-        ProductTo newProductTo = new ProductTo();
-        newProductTo.setName("TestProduct");
-        newProductTo.setDescription("TestDescription");
-        newProductTo.setMarketId(1L);
-
-        String newProductJson = mapper.writeValueAsString(newProductTo);
-
-        when(request.getReader()).thenReturn(new BufferedReader(new StringReader(newProductJson)));
+    void testDoGetAllProducts() throws IOException {
         when(response.getWriter()).thenReturn(new PrintWriter(stringWriter));
+        when(productService.getAll()).thenReturn(expectedProductDtoList);
+
+        productServlet.doGet(request, response);
+
+        String actualJson = stringWriter.toString();
+        List<ProductDto> actualMarketDtoList = mapper.readValue(actualJson, new TypeReference<>() {
+        });
+
+        verify(response, times(1)).setStatus(SC_OK);
+        verify(response, times(1)).setContentType("application/json");
+        verify(productService, times(1)).getAll();
+        assertEquals(expectedProductDtoList, actualMarketDtoList);
+
+    }
+
+    @Test
+    void testDoPostValidProduct() throws IOException {
+        ProductDto newProductDto = expectedProductDtoList.get(0);
+
+        String newMarketJson = mapper.writeValueAsString(newProductDto);
+
+        when(request.getReader()).thenReturn(new BufferedReader(new StringReader(newMarketJson)));
+        when(response.getWriter()).thenReturn(new PrintWriter(stringWriter));
+        when(productService.save(newProductDto)).thenReturn(newProductDto);
 
         productServlet.doPost(request, response);
 
+        String actualJson = stringWriter.toString().trim();
+        ProductDto actualProductDto = mapper.readValue(actualJson, ProductDto.class);
+
         verify(response, times(1)).setStatus(SC_CREATED);
         verify(response, times(1)).setContentType("application/json");
-
-        String actualJson = stringWriter.toString().trim();
-
-        assertEquals(ProductDataTest.NEW_PRODUCT_JSON, actualJson);
+        verify(productService, times(1)).save(newProductDto);
+        assertEquals(newProductDto, actualProductDto);
     }
 
     @Test
-    @Order(4)
     void testDoPutValidProduct() throws IOException {
-        ProductTo newProductTo = new ProductTo();
-        newProductTo.setId(11L);
-        newProductTo.setName("UpdatedTestProduct");
-        newProductTo.setDescription("UpdatedTestDescription");
-        newProductTo.setMarketId(2L);
+        ProductDto updatedProductDto = expectedProductDtoList.get(1);
 
-        String newProductJson = mapper.writeValueAsString(newProductTo);
+        String updatedMarketJson = mapper.writeValueAsString(updatedProductDto);
 
-        when(request.getReader()).thenReturn(new BufferedReader(new StringReader(newProductJson)));
+        when(request.getReader()).thenReturn(new BufferedReader(new StringReader(updatedMarketJson)));
         when(response.getWriter()).thenReturn(new PrintWriter(stringWriter));
+        when(productService.update(updatedProductDto)).thenReturn(updatedProductDto);
 
         productServlet.doPut(request, response);
 
+        String actualJson = stringWriter.toString().trim();
+        ProductDto actualProductDto = mapper.readValue(actualJson, ProductDto.class);
+
         verify(response, times(1)).setStatus(SC_OK);
         verify(response, times(1)).setContentType("application/json");
-
-        String actualJson = stringWriter.toString().trim();
-
-        assertEquals(ProductDataTest.UPDATED_PRODUCT_JSON, actualJson);
+        verify(productService, times(1)).update(updatedProductDto);
+        assertEquals(updatedProductDto, actualProductDto);
     }
 
     @Test
-    @Order(5)
     void testDoDeleteValidProduct() throws Exception {
-        when(request.getPathInfo()).thenReturn("/11");
+        ResponseData expectedResponseData = ResponseData.builder()
+                .status(200)
+                .message("Successfully removed=true")
+                .build();
+
+        when(request.getPathInfo()).thenReturn("/4");
         when(response.getWriter()).thenReturn(new PrintWriter(stringWriter));
+        when(productService.remove(4L)).thenReturn(true);
 
         productServlet.doDelete(request, response);
 
-        verify(response, times(1)).setStatus(SC_OK);
-        verify(response, times(1)).setContentType("application/json");
-
         String actualJson = stringWriter.toString().trim();
         actualJson = removeFieldFromJson(actualJson, "issueAt");
+        ResponseData actualResponseData = mapper.readValue(actualJson, ResponseData.class);
 
-        assertEquals(ProductDataTest.SUCCESSFUL_DELETE_PRODUCT_JSON, actualJson);
+        verify(response, times(1)).setStatus(SC_OK);
+        verify(response, times(1)).setContentType("application/json");
+        verify(productService, times(1)).remove(anyLong());
+        assertEquals(expectedResponseData, actualResponseData);
     }
 }

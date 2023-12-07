@@ -14,19 +14,9 @@ public class ConnectionPool {
     private static final String DRIVER_NAME = config.getString("db.driver");
     private static final String USERNAME = config.getString("db.username");
     private static final String PASSWORD = config.getString("db.password");
-    private static HikariDataSource dataSource;
+    private static final HikariDataSource dataSource;
 
-    private ConnectionPool() {
-    }
-
-    public static synchronized Connection getConnection() throws SQLException {
-        if (dataSource == null) {
-            initializeDataSource();
-        }
-        return dataSource.getConnection();
-    }
-
-    private static void initializeDataSource() {
+    static {
         HikariConfig config = new HikariConfig();
         config.setJdbcUrl(JDBC_URL);
         config.setUsername(USERNAME);
@@ -35,5 +25,9 @@ public class ConnectionPool {
         config.setAutoCommit(false);
 
         dataSource = new HikariDataSource(config);
+    }
+
+    public Connection getConnection() throws SQLException {
+        return dataSource.getConnection();
     }
 }

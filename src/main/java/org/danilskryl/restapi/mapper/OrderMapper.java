@@ -1,11 +1,11 @@
 package org.danilskryl.restapi.mapper;
 
-import org.danilskryl.restapi.dto.OrderTo;
+import org.danilskryl.restapi.dto.OrderDto;
 import org.danilskryl.restapi.model.Order;
 
-public class OrderMapper implements Mapper<Order, OrderTo> {
+public class OrderMapper implements Mapper<Order, OrderDto> {
     @Override
-    public Order toEntity(OrderTo dto) {
+    public Order fromDto(OrderDto dto) {
         Order order = new Order();
         order.setId(dto.getId());
         order.setOrderDate(dto.getOrderDate());
@@ -14,8 +14,8 @@ public class OrderMapper implements Mapper<Order, OrderTo> {
     }
 
     @Override
-    public OrderTo toDto(Order market) {
-        return OrderTo.builder()
+    public OrderDto toDto(Order market) {
+        return OrderDto.builder()
                 .id(market.getId())
                 .orderDate(market.getOrderDate())
                 .build();
