@@ -55,7 +55,7 @@ public class OrderServlet extends HttpServlet {
                 long orderId = Long.parseLong(idString);
                 OrderDto orderDto = service.getById(orderId);
 
-                if (orderDto == null) {
+                if (orderDto.getId() == null) {
                     resp.setStatus(SC_NOT_FOUND);
                     resp.getWriter().write(mapper.writeValueAsString(
                             ResponseData.constructResponseData(SC_NOT_FOUND, "Order not found with ID " + orderId)

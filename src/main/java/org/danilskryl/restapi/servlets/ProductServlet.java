@@ -54,7 +54,7 @@ public class ProductServlet extends HttpServlet {
                 long productId = Long.parseLong(idString);
                 ProductDto product = service.getById(productId);
 
-                if (product == null) {
+                if (product.getId() == null) {
                     resp.setStatus(SC_NOT_FOUND);
                     resp.getWriter().write(mapper.writeValueAsString(
                             ResponseData.constructResponseData(SC_NOT_FOUND, "Product not found with ID " + productId)

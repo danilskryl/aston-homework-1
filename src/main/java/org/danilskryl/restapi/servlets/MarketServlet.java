@@ -52,7 +52,7 @@ public class MarketServlet extends HttpServlet {
                 long marketId = Long.parseLong(idString);
                 MarketDto market = service.getById(marketId);
 
-                if (market == null) {
+                if (market.getId() == null) {
                     resp.setStatus(SC_NOT_FOUND);
                     resp.getWriter().write(mapper.writeValueAsString(
                             ResponseData.constructResponseData(SC_NOT_FOUND, "Market not found with ID " + marketId)
