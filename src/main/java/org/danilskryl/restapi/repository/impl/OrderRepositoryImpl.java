@@ -53,11 +53,18 @@ public class OrderRepositoryImpl implements OrderRepository {
             return orders;
         } catch (SQLException e) {
             log.error(e.getMessage());
+            if (connection != null) {
+                try {
+                    connection.rollback();
+                } catch (SQLException ex) {
+                    log.error(ex.getMessage());
+                }
+            }
             throw new RuntimeException(e);
         } finally {
             if (connection != null) {
                 try {
-                    connection.rollback();
+                    connection.close();
                 } catch (SQLException ex) {
                     log.error(ex.getMessage());
                 }
@@ -84,11 +91,18 @@ public class OrderRepositoryImpl implements OrderRepository {
             return order;
         } catch (SQLException e) {
             log.error(e.getMessage());
+            if (connection != null) {
+                try {
+                    connection.rollback();
+                } catch (SQLException ex) {
+                    log.error(ex.getMessage());
+                }
+            }
             throw new RuntimeException(e);
         } finally {
             if (connection != null) {
                 try {
-                    connection.rollback();
+                    connection.close();
                 } catch (SQLException ex) {
                     log.error(ex.getMessage());
                 }
@@ -115,11 +129,18 @@ public class OrderRepositoryImpl implements OrderRepository {
             return order;
         } catch (SQLException e) {
             log.error(e.getMessage());
+            if (connection != null) {
+                try {
+                    connection.rollback();
+                } catch (SQLException ex) {
+                    log.error(ex.getMessage());
+                }
+            }
             throw new RuntimeException(e);
         } finally {
             if (connection != null) {
                 try {
-                    connection.rollback();
+                    connection.close();
                 } catch (SQLException ex) {
                     log.error(ex.getMessage());
                 }
@@ -153,11 +174,18 @@ public class OrderRepositoryImpl implements OrderRepository {
             return order;
         } catch (SQLException e) {
             log.error(e.getMessage());
+            if (connection != null) {
+                try {
+                    connection.rollback();
+                } catch (SQLException ex) {
+                    log.error(ex.getMessage());
+                }
+            }
             throw new RuntimeException(e);
         } finally {
             if (connection != null) {
                 try {
-                    connection.rollback();
+                    connection.close();
                 } catch (SQLException ex) {
                     log.error(ex.getMessage());
                 }
@@ -180,11 +208,18 @@ public class OrderRepositoryImpl implements OrderRepository {
             return order;
         } catch (SQLException e) {
             log.error(e.getMessage());
+            if (connection != null) {
+                try {
+                    connection.rollback();
+                } catch (SQLException ex) {
+                    log.error(ex.getMessage());
+                }
+            }
             throw new RuntimeException(e);
         } finally {
             if (connection != null) {
                 try {
-                    connection.rollback();
+                    connection.close();
                 } catch (SQLException ex) {
                     log.error(ex.getMessage());
                 }
@@ -206,11 +241,18 @@ public class OrderRepositoryImpl implements OrderRepository {
             return result > 0;
         } catch (SQLException e) {
             log.error(e.getMessage());
+            if (connection != null) {
+                try {
+                    connection.rollback();
+                } catch (SQLException ex) {
+                    log.error(ex.getMessage());
+                }
+            }
             throw new RuntimeException(e);
         } finally {
             if (connection != null) {
                 try {
-                    connection.rollback();
+                    connection.close();
                 } catch (SQLException ex) {
                     log.error(ex.getMessage());
                 }

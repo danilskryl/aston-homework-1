@@ -53,11 +53,18 @@ public class ProductRepositoryImpl implements ProductRepository {
             return products;
         } catch (SQLException e) {
             log.error(e.getMessage());
+            if (connection != null) {
+                try {
+                    connection.rollback();
+                } catch (SQLException ex) {
+                    log.error(ex.getMessage());
+                }
+            }
             throw new RuntimeException(e);
         } finally {
             if (connection != null) {
                 try {
-                    connection.rollback();
+                    connection.close();
                 } catch (SQLException ex) {
                     log.error(ex.getMessage());
                 }
@@ -87,11 +94,18 @@ public class ProductRepositoryImpl implements ProductRepository {
             return product;
         } catch (SQLException e) {
             log.error(e.getMessage());
+            if (connection != null) {
+                try {
+                    connection.rollback();
+                } catch (SQLException ex) {
+                    log.error(ex.getMessage());
+                }
+            }
             throw new RuntimeException(e);
         } finally {
             if (connection != null) {
                 try {
-                    connection.rollback();
+                    connection.close();
                 } catch (SQLException ex) {
                     log.error(ex.getMessage());
                 }
@@ -123,11 +137,18 @@ public class ProductRepositoryImpl implements ProductRepository {
             return product;
         } catch (SQLException e) {
             log.error(e.getMessage());
+            if (connection != null) {
+                try {
+                    connection.rollback();
+                } catch (SQLException ex) {
+                    log.error(ex.getMessage());
+                }
+            }
             throw new RuntimeException(e);
         } finally {
             if (connection != null) {
                 try {
-                    connection.rollback();
+                    connection.close();
                 } catch (SQLException ex) {
                     log.error(ex.getMessage());
                 }
@@ -153,11 +174,18 @@ public class ProductRepositoryImpl implements ProductRepository {
             return product;
         } catch (SQLException e) {
             log.error(e.getMessage());
+            if (connection != null) {
+                try {
+                    connection.rollback();
+                } catch (SQLException ex) {
+                    log.error(ex.getMessage());
+                }
+            }
             throw new RuntimeException(e);
         } finally {
             if (connection != null) {
                 try {
-                    connection.rollback();
+                    connection.close();
                 } catch (SQLException ex) {
                     log.error(ex.getMessage());
                 }
@@ -179,11 +207,18 @@ public class ProductRepositoryImpl implements ProductRepository {
             return result > 0;
         } catch (SQLException e) {
             log.error(e.getMessage());
+            if (connection != null) {
+                try {
+                    connection.rollback();
+                } catch (SQLException ex) {
+                    log.error(ex.getMessage());
+                }
+            }
             throw new RuntimeException(e);
         } finally {
             if (connection != null) {
                 try {
-                    connection.rollback();
+                    connection.close();
                 } catch (SQLException ex) {
                     log.error(ex.getMessage());
                 }

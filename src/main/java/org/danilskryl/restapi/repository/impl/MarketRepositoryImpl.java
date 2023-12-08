@@ -52,11 +52,18 @@ public class MarketRepositoryImpl implements MarketRepository {
             return result;
         } catch (SQLException e) {
             log.error(e.getMessage());
+            if (connection != null) {
+                try {
+                    connection.rollback();
+                } catch (SQLException ex) {
+                    log.error(ex.getMessage());
+                }
+            }
             throw new RuntimeException(e);
         } finally {
             if (connection != null) {
                 try {
-                    connection.rollback();
+                    connection.close();
                 } catch (SQLException ex) {
                     log.error(ex.getMessage());
                 }
@@ -83,11 +90,18 @@ public class MarketRepositoryImpl implements MarketRepository {
             return market;
         } catch (SQLException e) {
             log.error(e.getMessage());
+            if (connection != null) {
+                try {
+                    connection.rollback();
+                } catch (SQLException ex) {
+                    log.error(ex.getMessage());
+                }
+            }
             throw new RuntimeException(e);
         } finally {
             if (connection != null) {
                 try {
-                    connection.rollback();
+                    connection.close();
                 } catch (SQLException ex) {
                     log.error(ex.getMessage());
                 }
@@ -117,11 +131,18 @@ public class MarketRepositoryImpl implements MarketRepository {
             return market;
         } catch (SQLException e) {
             log.error(e.getMessage());
+            if (connection != null) {
+                try {
+                    connection.rollback();
+                } catch (SQLException ex) {
+                    log.error(ex.getMessage());
+                }
+            }
             throw new RuntimeException(e);
         } finally {
             if (connection != null) {
                 try {
-                    connection.rollback();
+                    connection.close();
                 } catch (SQLException ex) {
                     log.error(ex.getMessage());
                 }
@@ -146,11 +167,18 @@ public class MarketRepositoryImpl implements MarketRepository {
             return market;
         } catch (SQLException e) {
             log.error(e.getMessage());
+            if (connection != null) {
+                try {
+                    connection.rollback();
+                } catch (SQLException ex) {
+                    log.error(ex.getMessage());
+                }
+            }
             throw new RuntimeException(e);
         } finally {
             if (connection != null) {
                 try {
-                    connection.rollback();
+                    connection.close();
                 } catch (SQLException ex) {
                     log.error(ex.getMessage());
                 }
@@ -172,11 +200,18 @@ public class MarketRepositoryImpl implements MarketRepository {
             return result > 0;
         } catch (SQLException e) {
             log.error(e.getMessage());
+            if (connection != null) {
+                try {
+                    connection.rollback();
+                } catch (SQLException ex) {
+                    log.error(ex.getMessage());
+                }
+            }
             throw new RuntimeException(e);
         } finally {
             if (connection != null) {
                 try {
-                    connection.rollback();
+                    connection.close();
                 } catch (SQLException ex) {
                     log.error(ex.getMessage());
                 }
