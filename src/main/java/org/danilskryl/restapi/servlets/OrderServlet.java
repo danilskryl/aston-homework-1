@@ -8,7 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.danilskryl.restapi.dto.OrderDto;
 import org.danilskryl.restapi.dto.OrderProductDto;
-import org.danilskryl.restapi.exception.ResponseData;
+import org.danilskryl.restapi.util.ResponseData;
 import org.danilskryl.restapi.service.OrderService;
 import org.danilskryl.restapi.service.impl.OrderServiceImpl;
 

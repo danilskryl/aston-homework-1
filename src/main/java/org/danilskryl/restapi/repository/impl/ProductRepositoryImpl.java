@@ -1,5 +1,6 @@
 package org.danilskryl.restapi.repository.impl;
 
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.danilskryl.restapi.config.ConnectionPool;
 import org.danilskryl.restapi.model.Product;
@@ -30,198 +31,125 @@ public class ProductRepositoryImpl implements ProductRepository {
         this.connectionPool = connectionPool;
     }
 
+    @SneakyThrows
     @Override
     public List<Product> getAll() {
-        Connection connection = null;
-        try {
-            connection = connectionPool.getConnection();
-            PreparedStatement statement = connection.prepareStatement(SQL_SELECT_ALL);
-            List<Product> products = new ArrayList<>();
+        try (Connection connection = connectionPool.getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(SQL_SELECT_ALL)) {
+                List<Product> products = new ArrayList<>();
 
-            ResultSet resultSet = statement.executeQuery();
-            while (resultSet.next()) {
-                Product product = new Product();
-                product.setId(resultSet.getLong(1));
-                product.setName(resultSet.getString(2));
-                product.setDescription(resultSet.getString(3));
-                product.setMarketId(resultSet.getLong(4));
+                ResultSet resultSet = statement.executeQuery();
+                while (resultSet.next()) {
+                    Product product = new Product();
+                    product.setId(resultSet.getLong(1));
+                    product.setName(resultSet.getString(2));
+                    product.setDescription(resultSet.getString(3));
+                    product.setMarketId(resultSet.getLong(4));
 
-                products.add(product);
-            }
-            connection.commit();
-
-            return products;
-        } catch (SQLException e) {
-            log.error(e.getMessage());
-            if (connection != null) {
-                try {
-                    connection.rollback();
-                } catch (SQLException ex) {
-                    log.error(ex.getMessage());
+                    products.add(product);
                 }
-            }
-            throw new RuntimeException(e);
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException ex) {
-                    log.error(ex.getMessage());
-                }
+                connection.commit();
+
+                return products;
+            } catch (SQLException e) {
+                log.error(e.getMessage());
+                connection.rollback();
+                throw e;
             }
         }
     }
 
+    @SneakyThrows
     @Override
     public Product getById(Long id) {
-        Connection connection = null;
-        try {
-            connection = connectionPool.getConnection();
-            PreparedStatement statement = connection.prepareStatement(SQL_SELECT_BY_ID);
+        try (Connection connection = connectionPool.getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(SQL_SELECT_BY_ID)) {
+                statement.setLong(1, id);
+                ResultSet resultSet = statement.executeQuery();
 
-            statement.setLong(1, id);
-            ResultSet resultSet = statement.executeQuery();
-
-            Product product = new Product();
-            if (resultSet.next()) {
-                product.setId(resultSet.getLong(1));
-                product.setName(resultSet.getString(2));
-                product.setDescription(resultSet.getString(3));
-                product.setMarketId(resultSet.getLong(4));
-            }
-            connection.commit();
-
-            return product;
-        } catch (SQLException e) {
-            log.error(e.getMessage());
-            if (connection != null) {
-                try {
-                    connection.rollback();
-                } catch (SQLException ex) {
-                    log.error(ex.getMessage());
+                Product product = new Product();
+                if (resultSet.next()) {
+                    product.setId(resultSet.getLong(1));
+                    product.setName(resultSet.getString(2));
+                    product.setDescription(resultSet.getString(3));
+                    product.setMarketId(resultSet.getLong(4));
                 }
-            }
-            throw new RuntimeException(e);
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException ex) {
-                    log.error(ex.getMessage());
-                }
+                connection.commit();
+
+                return product;
+            } catch (SQLException e) {
+                log.error(e.getMessage());
+                connection.rollback();
+                throw e;
             }
         }
     }
 
+    @SneakyThrows
     @Override
     public Product save(Product product) {
-        Connection connection = null;
-        try {
-            connection = connectionPool.getConnection();
-            PreparedStatement statement = connection.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS);
+        try (Connection connection = connectionPool.getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
+                statement.setString(1, product.getName());
+                statement.setString(2, product.getDescription());
+                statement.setLong(3, product.getMarketId());
+                statement.executeUpdate();
 
-            statement.setString(1, product.getName());
-            statement.setString(2, product.getDescription());
-            statement.setLong(3, product.getMarketId());
-            statement.executeUpdate();
+                try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        product.setId(generatedKeys.getLong(1));
+                    } else {
+                        throw new SQLException("Failed to retrieve generated key.");
+                    }
+                }
+                connection.commit();
 
-            try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
-                if (generatedKeys.next()) {
-                    product.setId(generatedKeys.getLong(1));
-                } else {
-                    throw new SQLException("Failed to retrieve generated key.");
-                }
-            }
-            connection.commit();
-
-            return product;
-        } catch (SQLException e) {
-            log.error(e.getMessage());
-            if (connection != null) {
-                try {
-                    connection.rollback();
-                } catch (SQLException ex) {
-                    log.error(ex.getMessage());
-                }
-            }
-            throw new RuntimeException(e);
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException ex) {
-                    log.error(ex.getMessage());
-                }
+                return product;
+            } catch (SQLException e) {
+                log.error(e.getMessage());
+                connection.rollback();
+                throw e;
             }
         }
     }
 
+    @SneakyThrows
     @Override
     public Product update(Product product) {
-        Connection connection = null;
-        try {
-            connection = connectionPool.getConnection();
-            PreparedStatement statement = connection.prepareStatement(SQL_UPDATE);
+        try (Connection connection = connectionPool.getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(SQL_UPDATE)) {
+                statement.setString(1, product.getName());
+                statement.setString(2, product.getDescription());
+                statement.setLong(3, product.getMarketId());
+                statement.setLong(4, product.getId());
 
-            statement.setString(1, product.getName());
-            statement.setString(2, product.getDescription());
-            statement.setLong(3, product.getMarketId());
-            statement.setLong(4, product.getId());
+                statement.executeUpdate();
+                connection.commit();
 
-            statement.executeUpdate();
-            connection.commit();
-
-            return product;
-        } catch (SQLException e) {
-            log.error(e.getMessage());
-            if (connection != null) {
-                try {
-                    connection.rollback();
-                } catch (SQLException ex) {
-                    log.error(ex.getMessage());
-                }
-            }
-            throw new RuntimeException(e);
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException ex) {
-                    log.error(ex.getMessage());
-                }
+                return product;
+            } catch (SQLException e) {
+                log.error(e.getMessage());
+                connection.rollback();
+                throw e;
             }
         }
     }
 
+    @SneakyThrows
     @Override
     public boolean remove(Long id) {
-        Connection connection = null;
-        try {
-            connection = connectionPool.getConnection();
-            PreparedStatement statement = connection.prepareStatement(SQL_DELETE);
-            statement.setLong(1, id);
+        try (Connection connection = connectionPool.getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(SQL_DELETE)) {
+                statement.setLong(1, id);
 
-            int result = statement.executeUpdate();
-            connection.commit();
+                int result = statement.executeUpdate();
+                connection.commit();
 
-            return result > 0;
-        } catch (SQLException e) {
-            log.error(e.getMessage());
-            if (connection != null) {
-                try {
-                    connection.rollback();
-                } catch (SQLException ex) {
-                    log.error(ex.getMessage());
-                }
-            }
-            throw new RuntimeException(e);
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException ex) {
-                    log.error(ex.getMessage());
-                }
+                return result > 0;
+            } catch (SQLException e) {
+                log.error(e.getMessage());
+                connection.rollback();
+                throw e;
             }
         }
     }

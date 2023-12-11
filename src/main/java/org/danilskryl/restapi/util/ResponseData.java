@@ -1,4 +1,4 @@
-package org.danilskryl.restapi.exception;
+package org.danilskryl.restapi.util;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;

@@ -1,5 +1,6 @@
 package org.danilskryl.restapi.repository.impl;
 
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.danilskryl.restapi.config.ConnectionPool;
 import org.danilskryl.restapi.model.Market;
@@ -30,191 +31,118 @@ public class MarketRepositoryImpl implements MarketRepository {
         this.connectionPool = connectionPool;
     }
 
+    @SneakyThrows
     @Override
     public List<Market> getAll() {
-        Connection connection = null;
-        try {
-            connection = connectionPool.getConnection();
-            PreparedStatement statement = connection.prepareStatement(SQL_SELECT_ALL);
+        try (Connection connection = connectionPool.getConnection()) {
 
-            List<Market> result = new ArrayList<>();
+            try (PreparedStatement statement = connection.prepareStatement(SQL_SELECT_ALL)) {
+                List<Market> result = new ArrayList<>();
 
-            ResultSet resultSet = statement.executeQuery();
+                ResultSet resultSet = statement.executeQuery();
 
-            while (resultSet.next()) {
-                Market market = new Market();
-                market.setId(resultSet.getLong(1));
-                market.setName(resultSet.getString(2));
+                while (resultSet.next()) {
+                    Market market = new Market();
+                    market.setId(resultSet.getLong(1));
+                    market.setName(resultSet.getString(2));
 
-                result.add(market);
-            }
-
-            return result;
-        } catch (SQLException e) {
-            log.error(e.getMessage());
-            if (connection != null) {
-                try {
-                    connection.rollback();
-                } catch (SQLException ex) {
-                    log.error(ex.getMessage());
+                    result.add(market);
                 }
-            }
-            throw new RuntimeException(e);
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException ex) {
-                    log.error(ex.getMessage());
-                }
+
+                return result;
+            } catch (SQLException e) {
+                log.error(e.getMessage());
+                connection.rollback();
+                throw e;
             }
         }
     }
 
+    @SneakyThrows
     @Override
     public Market getById(Long id) {
-        Connection connection = null;
-        try {
-            connection = connectionPool.getConnection();
-            PreparedStatement statement = connection.prepareStatement(SQL_SELECT_BY_ID);
+        try (Connection connection = connectionPool.getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(SQL_SELECT_BY_ID)) {
+                statement.setLong(1, id);
+                ResultSet resultSet = statement.executeQuery();
 
-            statement.setLong(1, id);
-            ResultSet resultSet = statement.executeQuery();
-
-            Market market = new Market();
-            if (resultSet.next()) {
-                market.setId(resultSet.getLong(1));
-                market.setName(resultSet.getString(2));
-            }
-
-            return market;
-        } catch (SQLException e) {
-            log.error(e.getMessage());
-            if (connection != null) {
-                try {
-                    connection.rollback();
-                } catch (SQLException ex) {
-                    log.error(ex.getMessage());
+                Market market = new Market();
+                if (resultSet.next()) {
+                    market.setId(resultSet.getLong(1));
+                    market.setName(resultSet.getString(2));
                 }
-            }
-            throw new RuntimeException(e);
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException ex) {
-                    log.error(ex.getMessage());
-                }
+
+                return market;
+            } catch (SQLException e) {
+                log.error(e.getMessage());
+                connection.rollback();
+                throw e;
             }
         }
     }
 
+    @SneakyThrows
     @Override
     public Market save(Market market) {
-        Connection connection = null;
-        try {
-            connection = connectionPool.getConnection();
-            PreparedStatement statement = connection.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS);
+        try (Connection connection = connectionPool.getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
+                statement.setString(1, market.getName());
+                statement.executeUpdate();
 
-            statement.setString(1, market.getName());
-            statement.executeUpdate();
+                try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        market.setId(generatedKeys.getLong(1));
+                    } else {
+                        throw new SQLException("Failed to retrieve generated key.");
+                    }
 
-            try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
-                if (generatedKeys.next()) {
-                    market.setId(generatedKeys.getLong(1));
-                } else {
-                    throw new SQLException("Failed to retrieve generated key.");
-                }
-            }
-            connection.commit();
+                    connection.commit();
 
-            return market;
-        } catch (SQLException e) {
-            log.error(e.getMessage());
-            if (connection != null) {
-                try {
+                    return market;
+                } catch (SQLException e) {
+                    log.error(e.getMessage());
                     connection.rollback();
-                } catch (SQLException ex) {
-                    log.error(ex.getMessage());
-                }
-            }
-            throw new RuntimeException(e);
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException ex) {
-                    log.error(ex.getMessage());
+                    throw e;
                 }
             }
         }
-
     }
 
+    @SneakyThrows
     @Override
     public Market update(Market market) {
-        Connection connection = null;
-        try {
-            connection = connectionPool.getConnection();
-            PreparedStatement statement = connection.prepareStatement(SQL_UPDATE);
+        try (Connection connection = connectionPool.getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(SQL_UPDATE)) {
+                statement.setString(1, market.getName());
+                statement.setLong(2, market.getId());
 
-            statement.setString(1, market.getName());
-            statement.setLong(2, market.getId());
+                statement.executeUpdate();
+                connection.commit();
 
-            statement.executeUpdate();
-            connection.commit();
-
-            return market;
-        } catch (SQLException e) {
-            log.error(e.getMessage());
-            if (connection != null) {
-                try {
-                    connection.rollback();
-                } catch (SQLException ex) {
-                    log.error(ex.getMessage());
-                }
-            }
-            throw new RuntimeException(e);
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException ex) {
-                    log.error(ex.getMessage());
-                }
+                return market;
+            } catch (SQLException e) {
+                log.error(e.getMessage());
+                connection.rollback();
+                throw e;
             }
         }
     }
 
+    @SneakyThrows
     @Override
     public boolean remove(Long id) {
-        Connection connection = null;
-        try {
-            connection = connectionPool.getConnection();
-            PreparedStatement statement = connection.prepareStatement(SQL_DELETE);
-            statement.setLong(1, id);
+        try (Connection connection = connectionPool.getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(SQL_DELETE)) {
+                statement.setLong(1, id);
 
-            int result = statement.executeUpdate();
-            connection.commit();
+                int result = statement.executeUpdate();
+                connection.commit();
 
-            return result > 0;
-        } catch (SQLException e) {
-            log.error(e.getMessage());
-            if (connection != null) {
-                try {
-                    connection.rollback();
-                } catch (SQLException ex) {
-                    log.error(ex.getMessage());
-                }
-            }
-            throw new RuntimeException(e);
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException ex) {
-                    log.error(ex.getMessage());
-                }
+                return result > 0;
+            } catch (SQLException e) {
+                log.error(e.getMessage());
+                connection.rollback();
+                throw e;
             }
         }
     }

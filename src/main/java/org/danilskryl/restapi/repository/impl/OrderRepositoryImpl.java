@@ -1,5 +1,6 @@
 package org.danilskryl.restapi.repository.impl;
 
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.danilskryl.restapi.config.ConnectionPool;
 import org.danilskryl.restapi.model.Order;
@@ -32,230 +33,146 @@ public class OrderRepositoryImpl implements OrderRepository {
         this.connectionPool = connectionPool;
     }
 
+    @SneakyThrows
     @Override
     public List<Order> getAll() {
-        Connection connection = null;
-        try {
-            connection = connectionPool.getConnection();
-            PreparedStatement statement = connection.prepareStatement(SQL_SELECT_ALL);
-            List<Order> orders = new ArrayList<>();
+        try (Connection connection = connectionPool.getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(SQL_SELECT_ALL)) {
+                List<Order> orders = new ArrayList<>();
 
-            ResultSet resultSet = statement.executeQuery();
-            while (resultSet.next()) {
-                Order order = new Order();
-                order.setId(resultSet.getLong(1));
-                order.setOrderDate(resultSet.getTimestamp(2).toLocalDateTime());
+                ResultSet resultSet = statement.executeQuery();
+                while (resultSet.next()) {
+                    Order order = new Order();
+                    order.setId(resultSet.getLong(1));
+                    order.setOrderDate(resultSet.getTimestamp(2).toLocalDateTime());
 
-                orders.add(order);
-            }
-            connection.commit();
-
-            return orders;
-        } catch (SQLException e) {
-            log.error(e.getMessage());
-            if (connection != null) {
-                try {
-                    connection.rollback();
-                } catch (SQLException ex) {
-                    log.error(ex.getMessage());
+                    orders.add(order);
                 }
-            }
-            throw new RuntimeException(e);
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException ex) {
-                    log.error(ex.getMessage());
-                }
+                connection.commit();
+
+                return orders;
+            } catch (SQLException e) {
+                log.error(e.getMessage());
+                connection.rollback();
+                throw e;
             }
         }
     }
 
+    @SneakyThrows
     @Override
     public Order getById(Long id) {
-        Connection connection = null;
-        try {
-            connection = connectionPool.getConnection();
-            PreparedStatement statement = connection.prepareStatement(SQL_SELECT_BY_ID);
-            statement.setLong(1, id);
-            ResultSet resultSet = statement.executeQuery();
+        try (Connection connection = connectionPool.getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(SQL_SELECT_BY_ID)) {
+                statement.setLong(1, id);
+                ResultSet resultSet = statement.executeQuery();
 
-            Order order = new Order();
-            if (resultSet.next()) {
-                order.setId(resultSet.getLong(1));
-                order.setOrderDate(resultSet.getTimestamp(2).toLocalDateTime());
-            }
-            connection.commit();
+                Order order = new Order();
+                if (resultSet.next()) {
+                    order.setId(resultSet.getLong(1));
+                    order.setOrderDate(resultSet.getTimestamp(2).toLocalDateTime());
+                }
+                connection.commit();
 
-            return order;
-        } catch (SQLException e) {
-            log.error(e.getMessage());
-            if (connection != null) {
-                try {
-                    connection.rollback();
-                } catch (SQLException ex) {
-                    log.error(ex.getMessage());
-                }
-            }
-            throw new RuntimeException(e);
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException ex) {
-                    log.error(ex.getMessage());
-                }
+                return order;
+            } catch (SQLException e) {
+                log.error(e.getMessage());
+                connection.rollback();
+                throw e;
             }
         }
     }
 
+    @SneakyThrows
     @Override
     public Order save(Order order) {
-        Connection connection = null;
-        try {
-            connection = connectionPool.getConnection();
-            PreparedStatement insertOrderStatement = connection.prepareStatement(SQL_INSERT_ORDER, Statement.RETURN_GENERATED_KEYS);
-            insertOrderStatement.setTimestamp(1, Timestamp.valueOf(order.getOrderDate()));
-            insertOrderStatement.executeUpdate();
+        try (Connection connection = connectionPool.getConnection()) {
+            try (PreparedStatement insertOrderStatement = connection.prepareStatement(SQL_INSERT_ORDER, Statement.RETURN_GENERATED_KEYS)) {
+                insertOrderStatement.setTimestamp(1, Timestamp.valueOf(order.getOrderDate()));
+                insertOrderStatement.executeUpdate();
 
-            ResultSet generatedKeys = insertOrderStatement.getGeneratedKeys();
-            if (generatedKeys.next()) {
-                long orderId = generatedKeys.getLong(1);
-                order.setId(orderId);
-            }
-            connection.commit();
+                ResultSet generatedKeys = insertOrderStatement.getGeneratedKeys();
+                if (generatedKeys.next()) {
+                    long orderId = generatedKeys.getLong(1);
+                    order.setId(orderId);
+                }
+                connection.commit();
 
-            return order;
-        } catch (SQLException e) {
-            log.error(e.getMessage());
-            if (connection != null) {
-                try {
-                    connection.rollback();
-                } catch (SQLException ex) {
-                    log.error(ex.getMessage());
-                }
-            }
-            throw new RuntimeException(e);
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException ex) {
-                    log.error(ex.getMessage());
-                }
+                return order;
+            } catch (SQLException e) {
+                log.error(e.getMessage());
+                connection.rollback();
+                throw e;
             }
         }
     }
 
+    @SneakyThrows
     @Override
     public Order save(Order order, List<Long> productsId) {
-        Connection connection = null;
-        try {
-            connection = connectionPool.getConnection();
-            PreparedStatement insertOrderStatement = connection.prepareStatement(SQL_INSERT_ORDER, Statement.RETURN_GENERATED_KEYS);
-            PreparedStatement insertOrderProductStatement = connection.prepareStatement(SQL_INSERT_ORDER_PRODUCT);
-            insertOrderStatement.setTimestamp(1, Timestamp.valueOf(order.getOrderDate()));
-            insertOrderStatement.executeUpdate();
+        try (Connection connection = connectionPool.getConnection()) {
+            try (PreparedStatement insertOrderStatement = connection.prepareStatement(SQL_INSERT_ORDER, Statement.RETURN_GENERATED_KEYS);
+                 PreparedStatement insertOrderProductStatement = connection.prepareStatement(SQL_INSERT_ORDER_PRODUCT)) {
+                insertOrderStatement.setTimestamp(1, Timestamp.valueOf(order.getOrderDate()));
+                insertOrderStatement.executeUpdate();
 
-            ResultSet generatedKeys = insertOrderStatement.getGeneratedKeys();
-            if (generatedKeys.next()) {
-                long orderId = generatedKeys.getLong(1);
-                order.setId(orderId);
+                ResultSet generatedKeys = insertOrderStatement.getGeneratedKeys();
+                if (generatedKeys.next()) {
+                    long orderId = generatedKeys.getLong(1);
+                    order.setId(orderId);
 
-                for (Long productId : productsId) {
-                    insertOrderProductStatement.setLong(1, orderId);
-                    insertOrderProductStatement.setLong(2, productId);
-                    insertOrderProductStatement.executeUpdate();
+                    for (Long productId : productsId) {
+                        insertOrderProductStatement.setLong(1, orderId);
+                        insertOrderProductStatement.setLong(2, productId);
+                        insertOrderProductStatement.executeUpdate();
+                    }
                 }
-            }
-            connection.commit();
+                connection.commit();
 
-            return order;
-        } catch (SQLException e) {
-            log.error(e.getMessage());
-            if (connection != null) {
-                try {
-                    connection.rollback();
-                } catch (SQLException ex) {
-                    log.error(ex.getMessage());
-                }
-            }
-            throw new RuntimeException(e);
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException ex) {
-                    log.error(ex.getMessage());
-                }
+                return order;
+            } catch (SQLException e) {
+                log.error(e.getMessage());
+                connection.rollback();
+                throw e;
             }
         }
     }
 
+    @SneakyThrows
     @Override
     public Order update(Order order) {
-        Connection connection = null;
-        try {
-            connection = connectionPool.getConnection();
-            PreparedStatement statement = connection.prepareStatement(SQL_UPDATE);
-            statement.setTimestamp(1, Timestamp.valueOf(order.getOrderDate()));
-            statement.setLong(2, order.getId());
+        try (Connection connection = connectionPool.getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(SQL_UPDATE)) {
+                statement.setTimestamp(1, Timestamp.valueOf(order.getOrderDate()));
+                statement.setLong(2, order.getId());
 
-            statement.executeUpdate();
-            connection.commit();
+                statement.executeUpdate();
+                connection.commit();
 
-            return order;
-        } catch (SQLException e) {
-            log.error(e.getMessage());
-            if (connection != null) {
-                try {
-                    connection.rollback();
-                } catch (SQLException ex) {
-                    log.error(ex.getMessage());
-                }
-            }
-            throw new RuntimeException(e);
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException ex) {
-                    log.error(ex.getMessage());
-                }
+                return order;
+            } catch (SQLException e) {
+                log.error(e.getMessage());
+                connection.rollback();
+                throw e;
             }
         }
     }
 
+    @SneakyThrows
     @Override
     public boolean remove(Long id) {
-        Connection connection = null;
-        try {
-            connection = connectionPool.getConnection();
-            PreparedStatement statement = connection.prepareStatement(SQL_DELETE);
-            statement.setLong(1, id);
+        try (Connection connection = connectionPool.getConnection()) {
+            try (PreparedStatement statement = connection.prepareStatement(SQL_DELETE)) {
+                statement.setLong(1, id);
 
-            int result = statement.executeUpdate();
-            connection.commit();
+                int result = statement.executeUpdate();
+                connection.commit();
 
-            return result > 0;
-        } catch (SQLException e) {
-            log.error(e.getMessage());
-            if (connection != null) {
-                try {
-                    connection.rollback();
-                } catch (SQLException ex) {
-                    log.error(ex.getMessage());
-                }
-            }
-            throw new RuntimeException(e);
-        } finally {
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException ex) {
-                    log.error(ex.getMessage());
-                }
+                return result > 0;
+            } catch (SQLException e) {
+                log.error(e.getMessage());
+                connection.rollback();
+                throw e;
             }
         }
     }

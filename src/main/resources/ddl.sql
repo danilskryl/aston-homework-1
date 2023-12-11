@@ -19,7 +19,7 @@ CREATE TABLE aston.product
 
 CREATE TABLE aston.order_table
 (
-    id        BIGINT PRIMARY KEY AUTO_INCREMENT,
+    id         BIGINT PRIMARY KEY AUTO_INCREMENT,
     order_date TIMESTAMP NOT NULL
 );
 
@@ -29,5 +29,5 @@ CREATE TABLE aston.orders_products
     product_id BIGINT,
     PRIMARY KEY (order_id, product_id),
     FOREIGN KEY (order_id) REFERENCES aston.order_table (id) ON DELETE CASCADE,
-    FOREIGN KEY (product_id) REFERENCES aston.product (id)
+    FOREIGN KEY (product_id) REFERENCES aston.product (id) ON DELETE CASCADE
 );
