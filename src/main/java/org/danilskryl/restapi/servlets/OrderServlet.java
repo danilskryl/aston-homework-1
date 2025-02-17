@@ -23,19 +23,9 @@ import static jakarta.servlet.http.HttpServletResponse.SC_OK;
 
 @WebServlet(name = "OrderServlet", value = "/api/v1/orders/*")
 public class OrderServlet extends HttpServlet {
-    private final OrderService service;
-    private final ObjectMapper mapper;
+    private final OrderService service = new OrderServiceImpl();
+    private final ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
     private static final String CONTENT_TYPE = "application/json";
-
-    public OrderServlet() {
-        service = new OrderServiceImpl();
-        mapper = new ObjectMapper().registerModule(new JavaTimeModule());
-    }
-
-    public OrderServlet(OrderService service, ObjectMapper mapper) {
-        this.service = service;
-        this.mapper = mapper;
-    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {

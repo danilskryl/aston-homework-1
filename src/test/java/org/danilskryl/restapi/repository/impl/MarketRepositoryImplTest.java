@@ -35,8 +35,8 @@ class MarketRepositoryImplTest {
     private ResultSet resultSet;
     private MarketRepositoryImpl spyRep;
     private Market marketExpected;
-    private static final String SQL_INSERT = "INSERT INTO aston.market (name) VALUES (?)";
-    private static final String SQL_SELECT_BY_ID = "SELECT * FROM aston.market WHERE id = ?";
+    private static final String SQL_INSERT = "INSERT INTO market (name) VALUES (?)";
+    private static final String SQL_SELECT_BY_ID = "SELECT * FROM market WHERE id = ?";
 
     @BeforeEach
     void setup() {

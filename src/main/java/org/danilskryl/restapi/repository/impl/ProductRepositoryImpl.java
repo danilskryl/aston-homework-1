@@ -17,11 +17,11 @@ import java.util.List;
 @Slf4j
 public class ProductRepositoryImpl implements ProductRepository {
     private final ConnectionPool connectionPool;
-    private static final String SQL_SELECT_ALL = "SELECT * FROM aston.product";
-    private static final String SQL_SELECT_BY_ID = "SELECT * FROM aston.product WHERE id = ?";
-    private static final String SQL_INSERT = "INSERT INTO aston.product(name, description, market_id) VALUES (?, ?, ?)";
-    private static final String SQL_UPDATE = "UPDATE aston.product SET name = ?, description = ?, market_id = ? WHERE id = ?";
-    private static final String SQL_DELETE = "DELETE FROM aston.product WHERE id = ?";
+    private static final String SQL_SELECT_ALL = "SELECT * FROM product";
+    private static final String SQL_SELECT_BY_ID = "SELECT * FROM product WHERE id = ?";
+    private static final String SQL_INSERT = "INSERT INTO product(name, description, market_id) VALUES (?, ?, ?)";
+    private static final String SQL_UPDATE = "UPDATE product SET name = ?, description = ?, market_id = ? WHERE id = ?";
+    private static final String SQL_DELETE = "DELETE FROM product WHERE id = ?";
 
     public ProductRepositoryImpl() {
         connectionPool = new ConnectionPool();

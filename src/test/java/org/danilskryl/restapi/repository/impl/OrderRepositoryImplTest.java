@@ -37,8 +37,8 @@ class OrderRepositoryImplTest {
     private ResultSet resultSet;
     private OrderRepositoryImpl spyRep;
     private Order orderExpected;
-    private static final String SQL_INSERT = "INSERT INTO aston.order_table (order_date) VALUES (?)";
-    private static final String SQL_SELECT_BY_ID = "SELECT * FROM aston.order_table WHERE id = ?";
+    private static final String SQL_INSERT = "INSERT INTO order_table (order_date) VALUES (?)";
+    private static final String SQL_SELECT_BY_ID = "SELECT * FROM order_table WHERE id = ?";
 
     @BeforeEach
     void setup() {

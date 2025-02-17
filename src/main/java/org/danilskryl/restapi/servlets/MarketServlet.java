@@ -7,32 +7,21 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.danilskryl.restapi.dto.MarketDto;
-import org.danilskryl.restapi.util.ResponseData;
 import org.danilskryl.restapi.service.MarketService;
 import org.danilskryl.restapi.service.impl.MarketServiceImpl;
+import org.danilskryl.restapi.util.ResponseData;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.List;
 
-import static jakarta.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
-import static jakarta.servlet.http.HttpServletResponse.SC_CREATED;
-import static jakarta.servlet.http.HttpServletResponse.SC_NOT_FOUND;
-import static jakarta.servlet.http.HttpServletResponse.SC_OK;
+import static jakarta.servlet.http.HttpServletResponse.*;
 
 @WebServlet(name = "MarketServlet", value = "/api/v1/markets/*")
 public class MarketServlet extends HttpServlet {
-    private final MarketService service;
+    private final MarketService service = new MarketServiceImpl();
     private final ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
     private static final String CONTENT_TYPE = "application/json";
-
-    public MarketServlet() {
-        service = new MarketServiceImpl();
-    }
-
-    public MarketServlet(MarketService service) {
-        this.service = service;
-    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {

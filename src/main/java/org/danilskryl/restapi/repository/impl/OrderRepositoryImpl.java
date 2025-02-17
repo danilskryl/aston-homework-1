@@ -18,12 +18,12 @@ import java.util.List;
 @Slf4j
 public class OrderRepositoryImpl implements OrderRepository {
     private final ConnectionPool connectionPool;
-    private static final String SQL_SELECT_ALL = "SELECT * FROM aston.order_table";
-    private static final String SQL_SELECT_BY_ID = "SELECT * FROM aston.order_table WHERE id = ?";
-    private static final String SQL_INSERT_ORDER = "INSERT INTO aston.order_table (order_date) VALUES (?)";
-    private static final String SQL_INSERT_ORDER_PRODUCT = "INSERT INTO aston.orders_products (order_id, product_id) VALUES (?, ?)";
-    private static final String SQL_UPDATE = "UPDATE aston.order_table SET aston.order_table.order_date = ? WHERE id = ?";
-    private static final String SQL_DELETE = "DELETE FROM aston.order_table WHERE id = ?";
+    private static final String SQL_SELECT_ALL = "SELECT * FROM order_table";
+    private static final String SQL_SELECT_BY_ID = "SELECT * FROM order_table WHERE id = ?";
+    private static final String SQL_INSERT_ORDER = "INSERT INTO order_table (order_date) VALUES (?)";
+    private static final String SQL_INSERT_ORDER_PRODUCT = "INSERT INTO orders_products (order_id, product_id) VALUES (?, ?)";
+    private static final String SQL_UPDATE = "UPDATE order_table SET order_table.order_date = ? WHERE id = ?";
+    private static final String SQL_DELETE = "DELETE FROM order_table WHERE id = ?";
 
     public OrderRepositoryImpl() {
         connectionPool = new ConnectionPool();
