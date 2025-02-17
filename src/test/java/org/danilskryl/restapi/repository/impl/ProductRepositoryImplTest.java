@@ -36,8 +36,8 @@ class ProductRepositoryImplTest {
     private ResultSet resultSet;
     private ProductRepositoryImpl spyRep;
     private Product productExpected;
-    private static final String SQL_INSERT = "INSERT INTO aston.product(name, description, market_id) VALUES (?, ?, ?)";
-    private static final String SQL_SELECT_BY_ID = "SELECT * FROM aston.product WHERE id = ?";
+    private static final String SQL_INSERT = "INSERT INTO product(name, description, market_id) VALUES (?, ?, ?)";
+    private static final String SQL_SELECT_BY_ID = "SELECT * FROM product WHERE id = ?";
 
     @BeforeEach
     void setup() {

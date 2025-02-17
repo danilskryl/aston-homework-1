@@ -1,10 +1,10 @@
-INSERT INTO aston.market (name)
+INSERT INTO market (name)
 VALUES ('Meta'),
        ('Yandex'),
        ('Google');
 
 
-INSERT INTO aston.product (name, description, market_id)
+INSERT INTO product (name, description, market_id)
 VALUES ('Browser', 'Google browser', 3),
        ('YouTube', 'Video hosting', 3),
        ('Gmail', 'Google mail', 3),
@@ -17,7 +17,7 @@ VALUES ('Browser', 'Google browser', 3),
        ('Threads', 'Social network', 1);
 
 
-INSERT INTO aston.order_table (order_date)
+INSERT INTO order_table (order_date)
 VALUES ('2023-12-01 15:30:00'),
        ('2023-12-15 16:45:00'),
        ('2024-01-05 12:00:00'),
@@ -30,7 +30,7 @@ VALUES ('2023-12-01 15:30:00'),
        ('2024-08-19 13:55:00');
 
 
-INSERT INTO aston.orders_products (order_id, product_id)
+INSERT INTO orders_products (order_id, product_id)
 VALUES (1, 1),
        (1, 5),
        (1, 9),

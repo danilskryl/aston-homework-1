@@ -6,22 +6,18 @@ import org.danilskryl.restapi.config.ConnectionPool;
 import org.danilskryl.restapi.model.Market;
 import org.danilskryl.restapi.repository.MarketRepository;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
 public class MarketRepositoryImpl implements MarketRepository {
     private final ConnectionPool connectionPool;
-    private static final String SQL_SELECT_ALL = "SELECT * FROM aston.market";
-    private static final String SQL_SELECT_BY_ID = "SELECT * FROM aston.market WHERE id = ?";
-    private static final String SQL_INSERT = "INSERT INTO aston.market (name) VALUES (?)";
-    private static final String SQL_UPDATE = "UPDATE aston.market SET name = ? WHERE id = ?";
-    private static final String SQL_DELETE = "DELETE FROM aston.market WHERE id = ?";
+    private static final String SQL_SELECT_ALL = "SELECT * FROM market";
+    private static final String SQL_SELECT_BY_ID = "SELECT * FROM market WHERE id = ?";
+    private static final String SQL_INSERT = "INSERT INTO market (name) VALUES (?)";
+    private static final String SQL_UPDATE = "UPDATE market SET name = ? WHERE id = ?";
+    private static final String SQL_DELETE = "DELETE FROM market WHERE id = ?";
 
     public MarketRepositoryImpl() {
         connectionPool = new ConnectionPool();
